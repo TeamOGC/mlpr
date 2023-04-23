@@ -9,6 +9,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from . import utilities as util
+logger.setLevel(logging.DEBUG)
 
 logger.debug("LOADED")
