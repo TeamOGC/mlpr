@@ -7,6 +7,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+try:
+    from .utilities import cov, vcol
+except ImportError:
+    from utilities import cov, vcol
 import numpy as np
 import numpy.typing as npt
 from typing import Tuple
@@ -36,7 +40,6 @@ def PCA(D: npt.ArrayLike, m: int) -> Tuple[np.ndarray, np.ndarray]:
     Y : np.ndarray
         Samples projected onto new subspace of dimension m.
     """
-    from .utilities import vcol
     mu = D.mean(1)
     Dcentered = D - vcol(mu)
     Cov = 1/D.shape[1] * (np.dot(Dcentered, Dcentered.T))
@@ -68,7 +71,6 @@ def LDA(D: npt.ArrayLike, L: npt.ArrayLike, m: int, method: LDA_Methods = LDA_Me
     (m,M) np.ndarray
         D projected onto new m-dimension space.
     """
-    from .utilities import cov, vcol
     classes = np.unique(L)
     number_of_classes = len(classes)
     number_of_samples = L.size
