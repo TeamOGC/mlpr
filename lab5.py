@@ -4,7 +4,7 @@ Created on Sun Apr 23 14:09:16 2023.
 @author: alex_
 """
 
-from ogc.classifiers import MVG, TiedMVG
+from ogc.classifiers.mvg import MVG, TiedMVG
 from ogc.utilities import load_iris, split_db_2to1, vcol, leave_one_out
 import numpy as np
 D, L = load_iris()

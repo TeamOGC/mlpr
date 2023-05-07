@@ -3,20 +3,21 @@ Created on Sun Apr 23 15:19:51 2023.
 
 @author: OGC
 """
+import logging
+logger = logging.getLogger(__name__)
 
 try:
-    from .utilities import vcol, cov, vrow
-    from .density_estimation import logpdf_GAU_ND
+    from ..utilities import vcol, cov, vrow
+    from ..density_estimation import logpdf_GAU_ND
 except ImportError:
-    from utilities import vcol, cov, vrow
-    from density_estimation import logpdf_GAU_ND
+    logger.debug("Using local imports")
+    from ogc.utilities import vcol, cov, vrow
+    from ogc.density_estimation import logpdf_GAU_ND
     
 from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 from typing import Tuple, Dict
-import logging
-logger = logging.getLogger(__name__)
 
 
 @dataclass(init=True, repr=True)
