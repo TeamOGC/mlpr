@@ -12,59 +12,77 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     try:
-        from .classifiers import ClassifierResult
+        from .classifiers.mvg import ClassifierResult
     except ImportError:
-        from classifiers import ClassifierResult
+        from classifiers.mvg import ClassifierResult
 
+def approx(f: float, decimals: int = 3) -> float:
+    """
+    Approximates a float number to a given number of decimals.
 
-def vcol(arr: "npt.ArrayLike") -> np.ndarray:
+    Parameters
+    ----------
+    f : float
+        input number.
+    decimals : int, optional
+        number of decimals. The default is 3.
+
+    Returns
+    -------
+    float
+        approximated number.
+
+    """
+    return np.round(f, decimals=decimals)
+
+def vcol(arr: npt.NDArray) -> npt.NDArray:
     """
     Transorms a numpy array into a column vector.
 
     Parameters
     ----------
-    arr : npt.ArrayLike
+    arr : npt.NDArray
         input array.
 
     Returns
     -------
-    np.ndarray
+    npt.NDArray
         column vector with (arr.size, 1) shape.
 
     """
     return arr.reshape((arr.size, 1))
 
 
-def vrow(arr: "npt.ArrayLike") -> np.ndarray:
+def vrow(arr: "npt.NDArray") -> "npt.NDArray":
     """
     Transorms a numpy array into a row vector.
 
     Parameters
     ----------
-    arr : npt.ArrayLike
+    arr : npt.NDArray
         input array.
 
     Returns
     -------
-    np.ndarray
+    npt.NDArray
         row vector with (1, arr.size) shape.
 
     """
     return arr.reshape((1, arr.size))
 
 
-def cov(data: "npt.ArrayLike") -> np.ndarray:
+def cov(data: "npt.NDArray") -> npt.NDArray:
     """
     Covariance matrix of the input data.
 
     Parameters
     ----------
-    data : npt.ArrayLike
+    data : npt.NDArray
         Input matrix.
 
     Returns
     -------
-    np.ndarray
+    npt.NDArray
         Covariance Matrix.
 
     """
@@ -73,15 +91,15 @@ def cov(data: "npt.ArrayLike") -> np.ndarray:
     return 1/data.shape[1] * np.dot(data_centered, data_centered.T)
 
 
-def load_iris() -> Tuple[np.ndarray, np.ndarray]:
+def load_iris() -> Tuple[npt.NDArray, npt.NDArray]:
     """
     Load IRIS dataset from sklearn.
 
     Returns
     -------
-    D : np.ndarray
+    D : npt.NDArray
         data.
-    L : np.ndarray
+    L : npt.NDArray
         labels.
 
     """
@@ -91,23 +109,43 @@ def load_iris() -> Tuple[np.ndarray, np.ndarray]:
         'target']
     return D, L
 
-
-def split_db_2to1(D: npt.ArrayLike, L: npt.ArrayLike, seed: int = 0) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+def load_iris_binary() -> Tuple[npt.NDArray, npt.NDArray]:
     """
-    Split data and labels into two non-overlapping sets.
+    Load IRIS dataset from sklearn.
+
+    Returns
+    -------
+    D : npt.NDArray
+        data.
+    L : npt.NDArray
+        labels.
+
+    """
+
+    import sklearn.datasets
+    D, L = sklearn.datasets.load_iris()['data'].T, sklearn.datasets.load_iris()[
+        'target']
+    D = D[:, L != 0]
+    L = L[L != 0]
+    L[L == 2] = 0
+    return D, L
+
+def split_db_2to1(D: npt.NDArray, L: npt.NDArray, seed: int = 0) -> Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]:
+    """
+    Split data and labels into two non-overlapping sets. The ratio is 2/3 for training and 1/3 for evaluation
 
     Parameters
     ----------
-    D : npt.ArrayLike
+    D : npt.NDArray
         Data.
-    L : npt.ArrayLike
+    L : npt.NDArray
         Labels.
     seed : int, optional
         seed for the random number generator. The default is 0.
 
     Returns
     -------
-    Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
+    Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]
         The first element of the tuple corresponds to the test set, the second to the evaluation set.
 
     """

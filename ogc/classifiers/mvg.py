@@ -88,7 +88,7 @@ def MVG(
 
 def TiedMVG(
     training_set: Tuple[npt.ArrayLike, npt.ArrayLike],
-    evaluation_set: Tuple[npt.ArrayLike, npt.ArrayLike],
+    test_set: Tuple[npt.ArrayLike, npt.ArrayLike],
     prior_probability: npt.ArrayLike,
     with_log: bool = True,
     naive: bool = False,
@@ -97,7 +97,7 @@ def TiedMVG(
     
     from scipy.special import logsumexp
     trn_data, trn_label = training_set
-    ev_data, ev_label = evaluation_set
+    tst_data, tst_label = test_set
 
     classes = np.unique(trn_label)
     assert prior_probability.size == len(
@@ -116,19 +116,19 @@ def TiedMVG(
     
     #%% Model Evaluation
     if with_log:
-        log_score_matrix = np.array([logpdf_GAU_ND(ev_data, MU_i(i), COV_i(i)) for i in classes])
+        log_score_matrix = np.array([logpdf_GAU_ND(tst_data, MU_i(i), COV_i(i)) for i in classes])
         log_SJoint = log_score_matrix + np.log(prior_probability)
         log_SMarginal = vrow(logsumexp(log_SJoint, axis=0))
         logSPost = log_SJoint - log_SMarginal
         SPost = np.exp(logSPost)
         predicted_labels = np.argmax(SPost, axis=0)
     else:
-        score_matrix =  np.array([np.exp(logpdf_GAU_ND(ev_data, MU_i(i), COV_i(i))) for i in classes])
+        score_matrix =  np.array([np.exp(logpdf_GAU_ND(tst_data, MU_i(i), COV_i(i))) for i in classes])
         SJoint = score_matrix * prior_probability
         SMarginal = vrow(SJoint.sum(0)) # Sums over classes
         SPost = SJoint / SMarginal
         predicted_labels = np.argmax(SPost, axis=0)
-    accuracy = (predicted_labels == ev_label).sum() / ev_label.size
+    accuracy = (predicted_labels == tst_label).sum() / tst_label.size
     logger.debug(f"TiedMVG{' (Naive)' if naive else ''}: {accuracy=}")
     result = ClassifierResult(SPost, MU_c, COV_c, accuracy)
     return result if not as_dict else result.dict()
