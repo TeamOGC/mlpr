@@ -130,7 +130,7 @@ def load_iris_binary() -> Tuple[npt.NDArray, npt.NDArray]:
     L[L == 2] = 0
     return D, L
 
-def split_db_2to1(D: npt.NDArray, L: npt.NDArray, seed: int = 0) -> Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]:
+def split_db_2to1(D: npt.NDArray, L: npt.NDArray, training_ratio = 2, test_ratio = 1, seed: int = 0) -> Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]:
     """
     Split data and labels into two non-overlapping sets. The ratio is 2/3 for training and 1/3 for evaluation
 
@@ -149,7 +149,8 @@ def split_db_2to1(D: npt.NDArray, L: npt.NDArray, seed: int = 0) -> Tuple[Tuple[
         The first element of the tuple corresponds to the test set, the second to the evaluation set.
 
     """
-    nTrain = int(D.shape[1]*2.0/3.0)
+    ratio = training_ratio / (training_ratio + test_ratio)
+    nTrain = int(D.shape[1]*ratio)
     np.random.seed(seed)
     idx = np.random.permutation(D.shape[1])
     idxTrain = idx[0:nTrain]
