@@ -1,30 +1,36 @@
-from . import TRAINING_DATA, TEST_DATA, ROOT_PATH
+import logging
+logging.basicConfig(level=logging.INFO)
+from project import TRAINING_DATA, TEST_DATA, ROOT_PATH
 import numpy as np
 import numpy.typing as npt
 from ogc.classifiers import mvg
 from ogc import utilities as util
 from ogc import dimensionality_reduction as dr
 import matplotlib.pyplot as plt
+from os import makedirs
+from functools import cache
 from typing import Dict
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 OUTPUT_PATH = ROOT_PATH + "output/gaussian_analysis/"
+makedirs(OUTPUT_PATH, exist_ok=True)
 
 # Try all the possible combinations of MVG, TiedMVG, NaiveMVG and LDA, PCA and LDA+PCA
-
+@cache
 def project_PCA(m: int):
     logger.info(f"Starting PCA projection into dimension {m}")
     DTR, LTR = TRAINING_DATA()
     return dr.PCA(DTR, m)[0], LTR
-    
+
+@cache
 def project_LDA(m: int):
     DTR, LTR = TRAINING_DATA()
     logger.info(f"Starting LDA projection into dimeonsion {m}")
     return dr.LDA(DTR, LTR, 1)[0], LTR
 
+@cache
 def project_PCA_LDA(m: int):
     DTR, LTR = TRAINING_DATA()
     logger.info(f"Starting PCA+LDA projection into dimension {m}")
@@ -32,7 +38,7 @@ def project_PCA_LDA(m: int):
     return dr.LDA(to_lda, LTR, 1)[0], LTR
 
 def project_MVG(training_data, test_data, mvg_params: dict):
-    logger.info("Starting MVG projection")
+    logger.debug("Starting MVG projection")
     prior_probability = util.vcol(np.ones(2) * 1/2)
     return mvg.MVG(prior_probability=prior_probability, **mvg_params).fit(training_data).predict(test_data)
 
@@ -92,5 +98,7 @@ def gaussian_analysis():
     return results
 
 if __name__ == "__main__":
+    import time
+    start = time.time()
     results = gaussian_analysis()
-    
+    print(f"Time elapsed: {time.time() - start} seconds")
