@@ -13,7 +13,8 @@ except ImportError:
     logger.debug("Using local imports")
     from ogc.utilities import vcol, cov, vrow
     from ogc.density_estimation import logpdf_GAU_ND
-    
+
+from . import BaseClassifier    
 from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
@@ -40,7 +41,7 @@ class ClassifierResult():
     def __getitem__(self, item):
        return self.__dict__[item]
 
-class MVG:
+class MVG(BaseClassifier):
     def __init__(self, prior_probability: npt.ArrayLike, naive: bool = False, tied: bool = False, with_log: bool = True):
         self.prior_probability = prior_probability
         self.with_log = with_log
@@ -79,23 +80,23 @@ class MVG:
     def predict(self, evaluation_set: Tuple[npt.NDArray, npt.NDArray]):
         ev_data, ev_label = evaluation_set
         classes = np.unique(ev_label)
-        if self.with_log:
-            log_score_matrix = np.array([logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
-            log_SJoint = log_score_matrix + np.log(self.prior_probability)
-            log_SMarginal = vrow(logsumexp(log_SJoint, axis=0))
-            logSPost = log_SJoint - log_SMarginal
-            SPost = np.exp(logSPost)
-            predicted_labels = np.argmax(SPost, axis=0)
-        else:
-            score_matrix =  np.array([np.exp(logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i))) for i in classes])
-            SJoint = score_matrix * self.prior_probability
-            SMarginal = vrow(SJoint.sum(0)) # Sums over classes
-            SPost = SJoint / SMarginal
-            predicted_labels = np.argmax(SPost, axis=0)
+        log_score_matrix = np.array([logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
+        log_SJoint = log_score_matrix + np.log(self.prior_probability)
+        log_SMarginal = vrow(logsumexp(log_SJoint, axis=0))
+        logSPost = log_SJoint - log_SMarginal
+        SPost = np.exp(logSPost)
+        predicted_labels = np.argmax(SPost, axis=0)
         accuracy = (predicted_labels == ev_label).sum() / ev_label.size
         logger.debug(f"{'Tied' if self.tied else ''} MVG{' (Naive)' if self.naive else ''}: {accuracy=}")
         result = ClassifierResult(SPost, self.MU_c, self.COV_c, accuracy)
         return result 
+    
+    def predictAndGetScores(self, evaluation_set: Tuple[npt.NDArray, npt.NDArray]):
+        ev_data, ev_label = evaluation_set
+        classes = np.unique(ev_label)
+        log_score_matrix = np.array([logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
+        return log_score_matrix[1] - log_score_matrix[0]
+
 
 
 

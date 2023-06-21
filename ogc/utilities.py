@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     try:
-        from .classifiers.mvg import ClassifierResult
+        from .classifiers.MVG import ClassifierResult
     except ImportError:
         from classifiers.mvg import ClassifierResult
 
