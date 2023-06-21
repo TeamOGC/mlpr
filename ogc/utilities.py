@@ -183,6 +183,16 @@ def k_fold(k: int, n_samples: int):
     
 def leave_one_out(n_samples):
     return k_fold(n_samples, n_samples)
+
+def confusionMatrix(predictedLabels, actualLabels, K):
+    # Initialize matrix of K x K zeros
+    matrix = np.zeros((K, K)).astype(int)
+    # We're computing the confusion
+    # matrix which "counts" how many times we get prediction i when the actual
+    # label is j.
+    for i in range(actualLabels.size):
+        matrix[predictedLabels[i], actualLabels[i]] += 1
+    return matrix
     
 if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
