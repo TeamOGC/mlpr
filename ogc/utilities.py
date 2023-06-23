@@ -6,8 +6,9 @@ Created on Sat Apr 22 11:53:18 2023.
 import numpy as np
 import numpy.typing as npt
 from typing import Tuple, TYPE_CHECKING
-
+from . import metrics
 import logging
+
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
         from .classifiers.MVG import ClassifierResult
     except ImportError:
         from classifiers.mvg import ClassifierResult
+
 
 def approx(f: float, decimals: int = 3) -> float:
     """
@@ -34,6 +36,7 @@ def approx(f: float, decimals: int = 3) -> float:
 
     """
     return np.round(f, decimals=decimals)
+
 
 def vcol(arr: npt.NDArray) -> npt.NDArray:
     """
@@ -88,7 +91,7 @@ def cov(data: "npt.NDArray") -> npt.NDArray:
     """
     mu = data.mean(1)
     data_centered = data - vcol(mu)
-    return 1/data.shape[1] * np.dot(data_centered, data_centered.T)
+    return 1 / data.shape[1] * np.dot(data_centered, data_centered.T)
 
 
 def load_iris() -> Tuple[npt.NDArray, npt.NDArray]:
@@ -105,9 +108,13 @@ def load_iris() -> Tuple[npt.NDArray, npt.NDArray]:
     """
 
     import sklearn.datasets
-    D, L = sklearn.datasets.load_iris()['data'].T, sklearn.datasets.load_iris()[
-        'target']
+
+    D, L = (
+        sklearn.datasets.load_iris()["data"].T,
+        sklearn.datasets.load_iris()["target"],
+    )
     return D, L
+
 
 def load_iris_binary() -> Tuple[npt.NDArray, npt.NDArray]:
     """
@@ -123,14 +130,20 @@ def load_iris_binary() -> Tuple[npt.NDArray, npt.NDArray]:
     """
 
     import sklearn.datasets
-    D, L = sklearn.datasets.load_iris()['data'].T, sklearn.datasets.load_iris()[
-        'target']
+
+    D, L = (
+        sklearn.datasets.load_iris()["data"].T,
+        sklearn.datasets.load_iris()["target"],
+    )
     D = D[:, L != 0]
     L = L[L != 0]
     L[L == 2] = 0
     return D, L
 
-def split_db_2to1(D: npt.NDArray, L: npt.NDArray, training_ratio = 2, test_ratio = 1, seed: int = 0) -> Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]:
+
+def split_db_2to1(
+    D: npt.NDArray, L: npt.NDArray, training_ratio=2, test_ratio=1, seed: int = 0
+) -> Tuple[Tuple[npt.NDArray, npt.NDArray], Tuple[npt.NDArray, npt.NDArray]]:
     """
     Split data and labels into two non-overlapping sets. The ratio is 2/3 for training and 1/3 for evaluation
 
@@ -150,7 +163,7 @@ def split_db_2to1(D: npt.NDArray, L: npt.NDArray, training_ratio = 2, test_ratio
 
     """
     ratio = training_ratio / (training_ratio + test_ratio)
-    nTrain = int(D.shape[1]*ratio)
+    nTrain = int(D.shape[1] * ratio)
     np.random.seed(seed)
     idx = np.random.permutation(D.shape[1])
     idxTrain = idx[0:nTrain]
@@ -162,27 +175,95 @@ def split_db_2to1(D: npt.NDArray, L: npt.NDArray, training_ratio = 2, test_ratio
     return (DTR, LTR), (DTE, LTE)
 
 
-def k_fold(k: int, n_samples: int):
-    fold_size = int(n_samples / k)
-    indices = np.arange(n_samples)
-    
-    n_splits = k
-    # Create an array with n_splits element and fill it with (int) n_samples/n_splits
-    fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=int) 
-    # Add the remainder to the first first folds
-    fold_sizes[: n_samples % n_splits] += 1
-    current = 0
-    for fold_size in fold_sizes:
-        start, stop = current, current + fold_size
-        mask = np.ones(n_samples, dtype=int)
-        val_set = indices[start:stop]
-        mask[val_set] = 0
-        test_set = indices[mask==1]
-        yield (test_set, val_set)
-        current = stop
-    
+# def k_fold(k: int, n_samples: int):
+#     fold_size = int(n_samples / k)
+#     indices = np.arange(n_samples)
+
+#     n_splits = k
+#     # Create an array with n_splits element and fill it with (int) n_samples/n_splits
+#     fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=int)
+#     # Add the remainder to the first first folds
+#     fold_sizes[: n_samples % n_splits] += 1
+#     current = 0
+#     for fold_size in fold_sizes:
+#         start, stop = current, current + fold_size
+#         mask = np.ones(n_samples, dtype=int)
+#         val_set = indices[start:stop]
+#         mask[val_set] = 0
+#         test_set = indices[mask==1]
+#         yield (test_set, val_set)
+#         current = stop
+
+
+def Ksplit(D, L, K=5, seed=0):
+    folds = []
+    labels = []
+    numberOfSamplesInFold = int(D.shape[1] / K)
+    # Generate a random seed
+    np.random.seed(seed)
+    class_0 = D[:, L == 0]
+    class_1 = D[:, L == 1]
+    class_0_idx = np.random.permutation(class_0.shape[1])
+    class_1_idx = np.random.permutation(class_1.shape[1])
+    class_unbalance_ratio = class_0.shape[1] / D.shape[1]
+
+    for i in range(K):
+        start_class_0 = int(i * numberOfSamplesInFold * class_unbalance_ratio)
+        end_class_0 = int((i + 1) * numberOfSamplesInFold * class_unbalance_ratio)
+        start_class_1 = int(i * numberOfSamplesInFold * (1 - class_unbalance_ratio))
+        end_class_1 = int((i + 1) * numberOfSamplesInFold * (1 - class_unbalance_ratio))
+
+        class_0_fold = class_0[:, class_0_idx[start_class_0:end_class_0]]
+        class_1_fold = class_1[:, class_1_idx[start_class_1:end_class_1]]
+
+        folds.append(np.hstack((class_0_fold, class_1_fold)))
+        labels.append(
+            np.hstack((np.zeros(class_0_fold.shape[1]), np.ones(class_1_fold.shape[1])))
+        )
+    return folds, labels
+
+
+def Kfold(D, L, model, K=5, prior=0.5):
+    if K > 1:
+        folds, labels = Ksplit(D, L, seed=0, K=K)
+        orderedLabels = []
+        scores = []
+        for i in range(K):
+            trainingSet = []
+            labelsOfTrainingSet = []
+            for j in range(K):
+                if j != i:
+                    trainingSet.append(folds[j])
+                    labelsOfTrainingSet.append(labels[j])
+            evaluationSet = folds[i]
+            orderedLabels.append(labels[i])
+            trainingSet = np.hstack(trainingSet)
+            labelsOfTrainingSet = np.hstack(labelsOfTrainingSet)
+            model.fit((trainingSet, labelsOfTrainingSet))
+            scores.append(model.predictAndGetScores(evaluationSet))
+        scores = np.hstack(scores)
+        orderedLabels = np.hstack(orderedLabels).astype(int)
+        labels = np.hstack(labels)
+        return metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)
+    else:
+        print("K cannot be <=1")
+    return
+
+
 def leave_one_out(n_samples):
     return k_fold(n_samples, n_samples)
+
+
+def confusionMatrix(predictedLabels, actualLabels, K):
+    # Initialize matrix of K x K zeros
+    matrix = np.zeros((K, K), dtype=int)
+    # We're computing the confusion
+    # matrix which "counts" how many times we get prediction i when the actual
+    # label is j.
+    for i in range(actualLabels.size):
+        matrix[predictedLabels[i], actualLabels[i]] += 1
+    return matrix
+
 
 def confusionMatrix(predictedLabels, actualLabels, K):
     # Initialize matrix of K x K zeros
@@ -193,7 +274,15 @@ def confusionMatrix(predictedLabels, actualLabels, K):
     for i in range(actualLabels.size):
         matrix[predictedLabels[i], actualLabels[i]] += 1
     return matrix
-    
-if __name__ == '__main__':
+
+
+def ZNormalization(D, mean=None, standardDeviation=None):
+    if mean is None and standardDeviation is None:
+        mean = D.mean(axis=1)
+        standardDeviation = D.std(axis=1)
+    ZD = (D - vcol(mean)) / vcol(standardDeviation)
+    return ZD, mean, standardDeviation
+
+
+if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    
