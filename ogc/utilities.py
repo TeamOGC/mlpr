@@ -10,10 +10,12 @@ from . import metrics
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 if TYPE_CHECKING:
     try:
-        from .classifiers.MVG import ClassifierResult
+        from .classifiers import BaseClassifier
+        from .classifiers.mvg import ClassifierResult
     except ImportError:
         from classifiers.mvg import ClassifierResult
 
@@ -206,24 +208,30 @@ def Ksplit(D, L, K=5, seed=0):
     class_0_idx = np.random.permutation(class_0.shape[1])
     class_1_idx = np.random.permutation(class_1.shape[1])
     class_unbalance_ratio = class_0.shape[1] / D.shape[1]
+    # logger.debug(f"Splitting {D.shape[1]} samples into {K} folds with {numberOfSamplesInFold} samples each. {class_unbalance_ratio=} ")
 
     for i in range(K):
         start_class_0 = int(i * numberOfSamplesInFold * class_unbalance_ratio)
-        end_class_0 = int((i + 1) * numberOfSamplesInFold * class_unbalance_ratio)
-        start_class_1 = int(i * numberOfSamplesInFold * (1 - class_unbalance_ratio))
-        end_class_1 = int((i + 1) * numberOfSamplesInFold * (1 - class_unbalance_ratio))
+        end_class_0 = int((i + 1) * numberOfSamplesInFold *
+                          class_unbalance_ratio)
+        start_class_1 = int(i * numberOfSamplesInFold *
+                            (1 - class_unbalance_ratio))
+        end_class_1 = int((i + 1) * numberOfSamplesInFold *
+                          (1 - class_unbalance_ratio))
 
         class_0_fold = class_0[:, class_0_idx[start_class_0:end_class_0]]
         class_1_fold = class_1[:, class_1_idx[start_class_1:end_class_1]]
 
+        # logger.debug(f"Fold {i=}: M{class_0_fold.shape[1]} + F{class_1_fold.shape[1]} = MF{class_0_fold.shape[1] + class_1_fold.shape[1]} ({class_0_fold.shape[1]/numberOfSamplesInFold}) ")
         folds.append(np.hstack((class_0_fold, class_1_fold)))
         labels.append(
-            np.hstack((np.zeros(class_0_fold.shape[1]), np.ones(class_1_fold.shape[1])))
+            np.hstack(
+                (np.zeros(class_0_fold.shape[1]), np.ones(class_1_fold.shape[1])))
         )
     return folds, labels
 
 
-def Kfold(D, L, model, K=5, prior=0.5):
+def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5):
     if K > 1:
         folds, labels = Ksplit(D, L, seed=0, K=K)
         orderedLabels = []
@@ -282,6 +290,58 @@ def ZNormalization(D, mean=None, standardDeviation=None):
         standardDeviation = D.std(axis=1)
     ZD = (D - vcol(mean)) / vcol(standardDeviation)
     return ZD, mean, standardDeviation
+
+
+def grid_search(callback, *args):
+    """Grid Search.
+
+    Args:
+        callback (function): Callback function to be called for each combination of parameters.
+        *args: Array of arguments to be passed to the callback function.
+                Each argument must be a tuple of the form (name, value).
+
+    Example:
+        grid_search(callback,
+            [("PCA 11", 11), ("PCA 10", 10)],
+            [("Standard MVG", {}), ("Naive MVG", {"naive": True})],
+        )
+        with callback defined as:
+            def callback(dimred, mvg_params):
+                assert(dimred in [11, 10])
+                assert(mvg_params in [{}, {"naive": True}])
+    """
+    for arg in args:
+        assert isinstance(arg, list), "All arguments must be lists"
+
+    grid_dimension = 1
+    for arg in args:
+        grid_dimension *= len(arg)
+    logger.debug(f"Grid dimension: {grid_dimension}")
+
+    args_names = [[it[0] for it in arg] for arg in args]
+    args_values = [[it[1] for it in arg] for arg in args]
+
+    grid_names = np.array(np.meshgrid(*args_names)).T.reshape(-1, len(args))
+    grid_arguments = np.array(np.meshgrid(
+        *args_values)).T.reshape(-1, len(args))
+
+    results = dict()
+    for i in range(grid_dimension):
+        logger.info(
+            f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
+        res = callback(*grid_arguments[i])
+        logger.info(f"Result: {res}")
+        results[tuple(grid_names[i])] = res
+
+    # convert results into table
+    n_of_cols = len(args) + 1
+    n_of_rows = grid_dimension
+    table = []
+    for key, value in results.items():
+        entry = [*key, value]
+        table.append(entry)
+    table = np.asarray(table)
+    return results, table
 
 
 if __name__ == "__main__":

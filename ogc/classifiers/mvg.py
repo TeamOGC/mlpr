@@ -79,27 +79,28 @@ class MVG(BaseClassifier):
             return self.COV_c
         return self.COV_c[i, :, :]
 
-    def predict(self, evaluation_set: Tuple[npt.NDArray, npt.NDArray]):
-        ev_data, ev_label = evaluation_set
-        classes = np.unique(ev_label)
-        log_score_matrix = np.array(
-            [logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
-        log_SJoint = log_score_matrix + np.log(self.prior_probability)
-        log_SMarginal = vrow(logsumexp(log_SJoint, axis=0))
-        logSPost = log_SJoint - log_SMarginal
-        SPost = np.exp(logSPost)
-        predicted_labels = np.argmax(SPost, axis=0)
-        accuracy = (predicted_labels == ev_label).sum() / ev_label.size
-        logger.debug(
-            f"{'Tied' if self.tied else ''} MVG{' (Naive)' if self.naive else ''}: {accuracy=}")
-        result = ClassifierResult(SPost, self.MU_c, self.COV_c, accuracy)
-        return result
+    
+    # def predict(self, evaluation_set: Tuple[npt.NDArray, npt.NDArray]):
+    #     pass
+    #     # ev_data, ev_label = evaluation_set
+    #     # classes = np.unique(ev_label)
+    #     # log_score_matrix = np.array(
+    #     #     [logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
+    #     # log_SJoint = log_score_matrix + np.log(self.prior_probability)
+    #     # log_SMarginal = vrow(logsumexp(log_SJoint, axis=0))
+    #     # logSPost = log_SJoint - log_SMarginal
+    #     # SPost = np.exp(logSPost)
+    #     # predicted_labels = np.argmax(SPost, axis=0)
+    #     # accuracy = (predicted_labels == ev_label).sum() / ev_label.size
+    #     # logger.debug(
+    #     #     f"{'Tied' if self.tied else ''} MVG{' (Naive)' if self.naive else ''}: {accuracy=}")
+    #     # result = ClassifierResult(SPost, self.MU_c, self.COV_c, accuracy)
+    #     # return result
 
-    def predictAndGetScores(self, evaluation_set):
-        ev_data = evaluation_set
+    def predictAndGetScores(self, evaluation_set: npt.NDArray):
         classes = [0, 1]
         log_score_matrix = np.array(
-            [logpdf_GAU_ND(ev_data, self.MU_i(i), self.COV_i(i)) for i in classes])
+            [logpdf_GAU_ND(evaluation_set, self.MU_i(i), self.COV_i(i)) for i in classes])
         return (log_score_matrix[1] - log_score_matrix[0]).astype(int)
 
 
