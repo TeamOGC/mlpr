@@ -112,7 +112,7 @@ def modifiedDualFormulation(DTR, LTR, C, K, piT=None):
                 b.append((0, C0))
 
     (x, f, d) = scipy.optimize .fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
-                                              np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, iprint=1, factr=1.0)
+                                              np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return np.sum((x*LTR).reshape(1, DTR.shape[1])*D, axis=1)
 
 
@@ -123,7 +123,7 @@ def kernelPoly(DTR, LTR, K, C, d, c):
     Hij = zizj*kernelFunction
     b = list(repeat((0, C), DTR.shape[1]))
     (x, f, data) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
-                                                np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, iprint=1, factr=1.0)
+                                                np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return x
 
 
@@ -141,5 +141,5 @@ def kernelRBF(DTR, LTR, gamma,  K, C):
     Hij = zizj*kernelFunction
     b = list(repeat((0, C), DTR.shape[1]))
     (x, f, data) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
-                                                np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, iprint=1, factr=1.0)
+                                                np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return x
