@@ -23,13 +23,13 @@ class SVM(BaseClassifier):
         self.LTR = LTR * 2 - 1
         if (self.option == 'linear'):
             self.w = modifiedDualFormulation(
-                DTR, LTR, self.C, self.K, piT=self.piT)
+                self.DTR, self.LTR, self.C, self.K)
 
         if (self.option == 'polynomial'):
-            self.x = kernelPoly(DTR, LTR, self.K, self.C, self.d, self.c)
+            self.x = kernelPoly(self.DTR, self.LTR, self.K, self.C, self.d, self.c)
 
         if (self.option == 'RBF'):
-            self.x = kernelRBF(DTR, LTR, self.gamma, self.K, self.C)
+            self.x = kernelRBF(self.DTR, self.LTR, self.gamma, self.K, self.C)
         return self
 
     def predictAndGetScores(self, DTE):
@@ -59,6 +59,10 @@ def LD_objectiveFunctionOfModifiedDualFormulation(alpha, H):
 
 
 def modifiedDualFormulation(DTR, LTR, C, K) -> npt.NDArray:
+    '''
+    DTR: training set
+    LTR: labels of the training set (1 or -1)
+    '''
     # Compute the D matrix for the extended training set
 
     row = np.zeros(DTR.shape[1])+K
