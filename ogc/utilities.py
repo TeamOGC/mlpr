@@ -332,7 +332,6 @@ def grid_search(callback, *args):
         res = callback(*grid_arguments[i])
         logger.info(f"Result: {res}")
         results[tuple(grid_names[i])] = res
-
     # convert results into table
     n_of_cols = len(args) + 1
     n_of_rows = grid_dimension
@@ -340,7 +339,7 @@ def grid_search(callback, *args):
     for key, value in results.items():
         entry = [*key, value]
         table.append(entry)
-    table = np.asarray(table)
+    table = np.asarray(table, dtype=object)
     return results, table
 
 
