@@ -98,11 +98,23 @@ def main():
     _, linear_table = utilities.grid_search(
         linear_svm_callback, [options[0]], priors, dimred, dataset_types, Cs, Ks, priors)
     
+    filename = TABLES_OUTPUT_PATH + "logreg_results_linear.csv"
+    np.savetxt(filename, linear_table, delimiter=";",
+                fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "C", "K", "\pi", "MinDCF"]))
+    
     _, poly_table = utilities.grid_search(
         poly_svm_callback,[options[1]], priors, dimred, dataset_types, cs, ds, Cs, Ks)
     
+    filename = TABLES_OUTPUT_PATH + "logreg_results_poly.csv"
+    np.savetxt(filename, linear_table, delimiter=";",
+                fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "K", "MinDCF"]))
+
     _, rbf_table = utilities.grid_search(
         poly_svm_callback, [options[2]], priors, dimred, dataset_types, gammas, Cs, Ks)
+    filename = TABLES_OUTPUT_PATH + "logreg_results_rbf.csv"
+    np.savetxt(filename, linear_table, delimiter=";",
+                fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "Gamma", "C", "K", "MinDCF"]))
+
 
     table = np.vstack([linear_table, poly_table, rbf_table])
     

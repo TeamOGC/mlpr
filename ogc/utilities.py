@@ -8,6 +8,7 @@ import numpy.typing as npt
 from typing import Tuple, TYPE_CHECKING
 from . import metrics
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -329,12 +330,12 @@ def grid_search(callback, *args):
     for i in range(grid_dimension):
         logger.info(
             f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
+        start = time.time()
         res = callback(*grid_arguments[i])
+        logger.debug(f"Iteration {i+1} took {time.time() - start}s")
         logger.info(f"Result: {res}")
         results[tuple(grid_names[i])] = res
     # convert results into table
-    n_of_cols = len(args) + 1
-    n_of_rows = grid_dimension
     table = []
     for key, value in results.items():
         entry = [*key, value]

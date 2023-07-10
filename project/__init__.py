@@ -9,7 +9,7 @@ ROOT_PATH = __file__ + "/../"
 __TRAINING_DATA_FILE__ = __file__ + "/../input/train.csv"
 __TEST_DATA_FILE__ = __file__ + "/../input/test.csv"
 
-logger.debug("Project Root Path: " + ROOT_PATH)
+# logger.debug("Project Root Path: " + ROOT_PATH)
 
 @cache
 def TRAINING_DATA() -> Tuple[npt.NDArray, npt.NDArray]:
@@ -17,7 +17,7 @@ def TRAINING_DATA() -> Tuple[npt.NDArray, npt.NDArray]:
     labels = __TRAINING_DATA[:, -1]
     # change label dtype to int
     labels = labels.astype(int)
-    logger.debug("Training Data Shape: " + str(__TRAINING_DATA.shape))
+    # logger.debug("Training Data Shape: " + str(__TRAINING_DATA.shape))
     return __TRAINING_DATA[:, :-1].T, labels
 
 
@@ -27,5 +27,5 @@ def TEST_DATA() -> Tuple[npt.NDArray, npt.NDArray]:
     labels = __TEST_DATA[:, -1]
     # change label dtype to int
     labels = labels.astype(int)
-    logger.debug("Test Data Shape: " + str(__TEST_DATA.shape))
+    # logger.debug("Test Data Shape: " + str(__TEST_DATA.shape))
     return __TEST_DATA[:, :-1].T, labels
