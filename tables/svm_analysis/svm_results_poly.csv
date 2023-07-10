@@ -1,0 +1,7 @@
+# Kernel;Prior;PCA;Dataset;c;d;C;MinDCF
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 0$;$d = 2$;$C = 1$;0.17918781725888325
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 0$;$d = 2$;$C = 1$;0.1346119104868771
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 0$;$d = 2$;$C = 1$;0.5312112769232726
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-2}$;0.17918781725888325
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-2}$;0.1346119104868771
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-2}$;0.5312112769232726

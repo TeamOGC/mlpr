@@ -20,7 +20,7 @@ class SVM(BaseClassifier):
     def fit(self, training_set: Tuple[npt.NDArray, npt.NDArray]):
         DTR, LTR = training_set
         self.DTR = DTR
-        self.LTR = LTR
+        self.LTR = LTR * 2 - 1
         if (self.option == 'linear'):
             self.w = modifiedDualFormulation(
                 DTR, LTR, self.C, self.K, piT=self.piT)
@@ -31,35 +31,6 @@ class SVM(BaseClassifier):
         if (self.option == 'RBF'):
             self.x = kernelRBF(DTR, LTR, self.gamma, self.K, self.C)
         return self
-
-    # def predict(self, DTE):
-
-    #     if (self.option == 'linear'):
-
-    #         DTE = np.vstack([DTE, np.zeros(DTE.shape[1])+self.K])
-    #         S = np.dot(self.w.T, DTE)
-    #         LP = 1*(S > 0)
-    #         LP[LP == 0] = -1
-    #         return LP
-    #     if (self.option == 'polynomial'):
-
-    #         S = np.sum(
-    #             np.dot((self.x*self.LTR).reshape(1, self.DTR.shape[1]), (np.dot(self.DTR.T, DTE)+self.c)**self.d + self.K), axis=0)
-    #         LP = 1*(S > 0)
-    #         LP[LP == 0] = -1
-    #         return LP
-    #     if (self.option == 'RBF'):
-
-    #         kernelFunction = np.zeros((self.DTR.shape[1], DTE.shape[1]))
-    #         for i in range(self.DTR.shape[1]):
-    #             for j in range(DTE.shape[1]):
-    #                 kernelFunction[i, j] = RBF(
-    #                     self.DTR[:, i], DTE[:, j], self.gamma, self.K)
-    #         S = np.sum(np.dot((self.x*self.LTR).reshape(1,
-    #                    self.DTR.shape[1]), kernelFunction), axis=0)
-    #         LP = 1*(S > 0)
-    #         LP[LP == 0] = -1
-    #         return LP
 
     def predictAndGetScores(self, DTE):
         if (self.option == 'linear'):
@@ -87,7 +58,7 @@ def LD_objectiveFunctionOfModifiedDualFormulation(alpha, H):
     return ((1/2)*np.dot(np.dot(alpha.T, H), alpha)-np.dot(alpha.T, np.ones(H.shape[1])), grad)
 
 
-def modifiedDualFormulation(DTR, LTR, C, K, piT=None):
+def modifiedDualFormulation(DTR, LTR, C, K) -> npt.NDArray:
     # Compute the D matrix for the extended training set
 
     row = np.zeros(DTR.shape[1])+K
@@ -98,31 +69,20 @@ def modifiedDualFormulation(DTR, LTR, C, K, piT=None):
     zizj = np.dot(LTR.reshape(LTR.size, 1), LTR.reshape(1, LTR.size))
     Hij = zizj*Gij
 
-    if piT is None:
-        b = list(repeat((0, C), DTR.shape[1]))
-    else:
-        C1 = C*piT/(DTR[:, LTR == 1].shape[1]/DTR.shape[1])
-        C0 = C*(1-piT)/(DTR[:, LTR == 0].shape[1]/DTR.shape[1])
-
-        b = []
-        for i in range(DTR.shape[1]):
-            if LTR[i] == 1:
-                b.append((0, C1))
-            elif LTR[i] == 0:
-                b.append((0, C0))
+    b = list(repeat((0, C), DTR.shape[1]))
 
     (x, f, d) = scipy.optimize .fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
                                               np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return np.sum((x*LTR).reshape(1, DTR.shape[1])*D, axis=1)
 
 
-def kernelPoly(DTR, LTR, K, C, d, c):
+def kernelPoly(DTR, LTR, epsilon, C, d, c) -> npt.NDArray:
     # Compute the H matrix
-    kernelFunction = (np.dot(DTR.T, DTR)+c)**d + K**2
+    kernelFunction = (np.dot(DTR.T, DTR)+c)**d + epsilon
     zizj = np.dot(LTR.reshape(LTR.size, 1), LTR.reshape(1, LTR.size))
     Hij = zizj*kernelFunction
     b = list(repeat((0, C), DTR.shape[1]))
-    (x, f, data) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
+    (x, _, _) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
                                                 np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return x
 
@@ -143,3 +103,38 @@ def kernelRBF(DTR, LTR, gamma,  K, C):
     (x, f, data) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
                                                 np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return x
+
+
+class LinearSVM(BaseClassifier): 
+    def __init__(self, C: float, K: int = 1):
+        self.C = C
+        self.K = K
+
+    def fit(self, training_set: Tuple[npt.NDArray, npt.NDArray]):
+        DTR, LTR = training_set
+        self.w: npt.NDArray = modifiedDualFormulation(DTR, LTR, self.C, self.K)
+
+    def predictAndGetScores(self, DTE: npt.NDArray) -> float:
+        DTE = np.vstack([DTE, np.zeros(DTE.shape[1])+self.K])
+        return np.dot(self.w.T, DTE)
+    
+
+class PolynomialSVM(BaseClassifier): 
+    def __init__(self, d: int, c: float, C: float, epsilon: int = 1) -> None:
+        self.d = d
+        self.c = c
+        self.C = C
+        self.epsilon = epsilon
+
+    def fit(self, training_set: Tuple[npt.NDArray, npt.NDArray]):
+        DTR, LTR = training_set
+        self.DTR = DTR
+        self.LTR = LTR * 2 - 1
+        self.x = kernelPoly(self.DTR, self.LTR, self.epsilon, self.C, self.d, self.c)
+
+    def predictAndGetScores(self, DTE: npt.NDArray) -> float:
+        aizi = (self.x*self.LTR).reshape(1, self.DTR.shape[1])
+        kxixj = (np.dot(self.DTR.T, DTE)+self.c) ** self.d
+        S = np.sum(np.dot(aizi, kxixj + self.epsilon), axis=0)
+        return S
+    

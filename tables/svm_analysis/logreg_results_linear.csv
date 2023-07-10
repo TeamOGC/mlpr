@@ -1,0 +1,17 @@
+# Kernel;Prior;PCA;Dataset;C;K;\pi;MinDCF
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.5$;0.8398788850298335
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.5$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.5$;0.8028523084360648
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.5$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 10^{-2}$;$\pi = 0.5$;0.8278857041079857
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 10^{-2}$;$\pi = 0.5$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 10^{-2}$;$\pi = 0.5$;0.8309631947890029
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 10^{-2}$;$\pi = 0.5$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.1$;0.8298512779410454
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.1$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.1$;0.7575156164522983
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.1$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 10^{-2}$;$\pi = 0.1$;0.8278857041079857
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 10^{-2}$;$\pi = 0.1$;1.0
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 10^{-2}$;$\pi = 0.1$;0.8351195247000751
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 10^{-2}$;$\pi = 0.1$;1.0
