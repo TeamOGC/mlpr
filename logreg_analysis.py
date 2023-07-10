@@ -20,8 +20,8 @@ makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 
 
-def logreg_callback(prior, l, dimred, dataset_type, weighted):
-    model = LogisticRegression.LogisticRegression(l, prior, weighted=weighted)
+def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic):
+    model = LogisticRegression.LogisticRegression(l, prior, weighted=weighted, quadratic=quadratic)
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
         from ogc.utilities import ZNormalization as znorm
@@ -41,10 +41,11 @@ def main():
     dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
     dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
     weighted = [("Weighted", True), ("Unweighted", False)]
+    quadratic = [ ("Quadratic", True), ("Linear", False)]
     results, table = utilities.grid_search(
-        logreg_callback, priors, l, dimred, dataset_types, weighted)
+        logreg_callback, priors, l, dimred, dataset_types, weighted, quadratic)
     np.savetxt(TABLES_OUTPUT_PATH + "logreg_results.csv", table, delimiter=";",
-               fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "MinDCF"]))
+               fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "MinDCF"]))
 
 
 if __name__ == "__main__":

@@ -10,37 +10,44 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class LogisticRegression(BaseClassifier):
 
-    def __init__(self, l: float, prior: float = 0.5, weighted: bool = False):
+    def __init__(self, l: float, prior: float = 0.5, weighted: bool = False, quadratic: bool = False):
         self.l = l
         self.prior = prior
         self.weighted = weighted
+        self.quadratic = quadratic
 
     def fit(self, training_set: Tuple[npt.NDArray, npt.NDArray]):
         DTR, LTR = training_set
+        if self.quadratic:
+            DTR = features_expansion(DTR)
         assert DTR.shape[1] == LTR.size, "DTR sample count doesn't match labels sample count"
         assert DTR.shape[0] > 0, "DTR must have at least one feature"
         assert LTR.size > 0, "LTR must have at least one label"
         if not self.weighted:
-            self.x, self.f, self.d = fmin_l_bfgs_b(binary_logreg_obj_wrapper(DTR, LTR, self.l), np.zeros(DTR.shape[0] + 1), approx_grad=True)
+            self.x, self.f, self.d = fmin_l_bfgs_b(binary_logreg_obj_wrapper(
+                DTR, LTR, self.l), np.zeros(DTR.shape[0] + 1), approx_grad=True)
         else:
-            self.x, self.f, self.d = fmin_l_bfgs_b(weighted_binary_logreg_obj_wrapper(DTR, LTR, self.l, self.prior), np.zeros(DTR.shape[0] + 1), approx_grad=True)
-    
+            self.x, self.f, self.d = fmin_l_bfgs_b(weighted_binary_logreg_obj_wrapper(
+                DTR, LTR, self.l, self.prior), np.zeros(DTR.shape[0] + 1), approx_grad=True)
+
     def predict(self, test_set: npt.NDArray) -> npt.NDArray:
-        assert test_set.shape[0] == self.x.size - 1, "test_set must have the same number of features as the training set"
+        if self.quadratic:
+            test_set = features_expansion(test_set)
+        assert test_set.shape[0] == self.x.size - \
+            1, "test_set must have the same number of features as the training set"
         predicted = np.dot(self.x[0:-1], test_set) + self.x[-1]
-        predictedLabels = (predicted>0).astype(int)
+        predictedLabels = (predicted > 0).astype(int)
         return predictedLabels
-    
+
     def predictAndGetScores(self, test_set: npt.NDArray) -> npt.NDArray:
-        assert test_set.shape[0] == self.x.size - 1, "test_set must have the same number of features as the training set"
+        if self.quadratic:
+            test_set = features_expansion(test_set)
+        assert test_set.shape[0] == self.x.size - \
+            1, "test_set must have the same number of features as the training set"
         scores = np.dot(self.x[0:-1], test_set) + self.x[-1]
         return scores
-
-
-
 
 
 def score(w: npt.NDArray, x: npt.NDArray, b: float) -> float:
@@ -96,14 +103,21 @@ def weighted_binary_logreg_obj_wrapper(DTR: npt.NDArray, LTR: npt.NDArray, l: fl
     return logreg_obj
 
 
+def features_expansion(D):
+    expansion = []
+    for i in range(D.shape[1]):
+        vec = np.reshape(
+            np.dot(vcol(D[:, i]), vcol(D[:, i]).T), (-1, 1), order='F')
+        expansion.append(vec)
+    return np.vstack((np.hstack(expansion), D))
 
 
 # def binary_logreg(
 #         training_set: Tuple[npt.NDArray, npt.NDArray],
-#         test_set: Tuple[npt.NDArray, npt.NDArray], 
+#         test_set: Tuple[npt.NDArray, npt.NDArray],
 #         l: float = 10**(-3),
 #         true_label: any = 1):
-    
+
 #     DTR, LTR = training_set
 #     DTE, LTE = test_set
 
@@ -158,7 +172,7 @@ def weighted_binary_logreg_obj_wrapper(DTR: npt.NDArray, LTR: npt.NDArray, l: fl
 #     return logreg_obj
 
 # def multiclass_logreg(training_set: Tuple[npt.NDArray, npt.NDArray],
-#         test_set: Tuple[npt.NDArray, npt.NDArray], 
+#         test_set: Tuple[npt.NDArray, npt.NDArray],
 #         l: float = 10**(-3)):
 #     DTR, LTR = training_set
 #     DTE, LTE = test_set
@@ -184,4 +198,3 @@ def weighted_binary_logreg_obj_wrapper(DTR: npt.NDArray, LTR: npt.NDArray, l: fl
 #     error = 1 - accuracy
 #     return (W, b), min_j, error
 #     pass
-        
