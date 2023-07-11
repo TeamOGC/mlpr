@@ -1,9 +1,73 @@
-# Kernel;Prior;PCA;Dataset;C;K;\pi;MinDCF
-Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.5$;0.8398788850298335
-Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.5$;1.0
-Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.5$;0.8028523084360648
-Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.5$;1.0
-Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.1$;0.8298512779410454
-Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;$\pi = 0.1$;1.0
-Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.1$;0.7575156164522983
-Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;$\pi = 0.1$;1.0
+# Kernel;Prior;PCA;Dataset;C;K;MinDCF
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;0.8396537027848809
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 1$;$K = 1$;0.9137055837563453
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 1$;$K = 1$;0.9280129257153036
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 1$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 1$;$K = 1$;0.9578680203045685
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 1$;$K = 1$;0.8189382084653258
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 1$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 1$;$K = 1$;0.8812182741116751
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 1$;0.8495171940002291
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 1$;0.9299492385786802
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;0.7857511799804078
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10^{-2}$;$K = 1$;0.9506965383000647
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 1$;0.8324847652125237
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 1$;0.8730964467005076
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 1$;0.8635650038802589
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 1$;0.8944162436548223
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 1$;0.819097235474473
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 1$;0.9171291172092668
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-4}$;$K = 1$;0.48197778710736233
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-4}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10^{-4}$;$K = 1$;0.5129117209266821
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 1$;0.5230640051906417
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 1$;0.5509827869165298
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 1$;0.4933679376105238
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 1$;0.5543147208121827
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;0.4933361322086943
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;0.5525056295561237
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 10$;0.8463506481940892
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 1$;$K = 10$;0.8878172588832487
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 1$;$K = 10$;0.9103418444588629
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 1$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 1$;$K = 10$;0.9304568527918782
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 1$;$K = 10$;0.9165986031067516
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 1$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 1$;$K = 10$;0.9751269035532993
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 10$;0.9098151470045672
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 1$;$K = 10$;0.9624365482233502
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-2}$;$K = 10$;0.9674172741498417
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-2}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10^{-2}$;$K = 10$;0.9710659898477157
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 10$;0.8719132857524521
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10^{-2}$;$K = 10$;0.968020304568528
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 10$;0.9314949811075912
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10^{-2}$;$K = 10$;0.9624365482233502
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 10$;0.9182868338358587
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10^{-2}$;$K = 10$;0.947715736040609
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10^{-4}$;$K = 10$;0.8103698332124727
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10^{-4}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10^{-4}$;$K = 10$;0.914877294759742
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 10$;0.9424169560958233
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10^{-4}$;$K = 10$;0.9802030456852792
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 10$;0.8785466203580016
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 10$;0.9578680203045685
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 10$;0.8732974568400698
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 10$;0.9517766497461929
