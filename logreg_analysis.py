@@ -35,14 +35,14 @@ def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_
 
 
 def main():
-    fast_run = False
+    fast_run = True
     if fast_run:
         priors = [("$\pi = 0.5$", 0.5)]
         l = [("$10^3$", 100)]
-        dataset_types = [("RAW", None)]
+        dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
         dimred = [("No PCA", None)]
         weighted = [("Weighted", True), ("Unweighted", False)]
-        quadratic = [ ("Quadratic", True)]
+        quadratic = [ ("Quadratic", True), ("Linear", False)]
         logreg_priors = [("$\pi = 0.1$", 0.1)]
     else:
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
@@ -54,10 +54,10 @@ def main():
         quadratic = [ ("Quadratic", True), ("Linear", False)]
         logreg_priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
 
-    # _, weighted_table = utilities.grid_search(
-    #     logreg_callback, priors, l, dimred, dataset_types, [weighted[0]], quadratic, logreg_priors)
-    # np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_weighted.csv", weighted_table, delimiter=";",
-    #            fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
+    _, weighted_table = utilities.grid_search(
+        logreg_callback, priors, l, dimred, dataset_types, [weighted[0]], quadratic, logreg_priors)
+    np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_weighted.csv", weighted_table, delimiter=";",
+               fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
 
     _, table = utilities.grid_search(
         logreg_callback, priors, l, dimred, dataset_types, [weighted[1]], quadratic)

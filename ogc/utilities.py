@@ -9,7 +9,7 @@ from typing import Tuple, TYPE_CHECKING
 from . import metrics
 import logging
 import time
-
+from multiprocessing import Pool
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -292,6 +292,14 @@ def ZNormalization(D, mean=None, standardDeviation=None):
     ZD = (D - vcol(mean)) / vcol(standardDeviation)
     return ZD, mean, standardDeviation
 
+def callback_wrapper(*args):
+    callback, name, args = args[0], args[1], args[2]
+    logger.debug(f"Starting iteration {name}")
+    start = time.time()
+    res = callback(*args)
+    logger.info(f"Result: {res}")
+    logger.debug(f"{time.time() - start}s elapsed")
+    return (name, res)
 
 def grid_search(callback, *args):
     """Grid Search.
@@ -325,16 +333,20 @@ def grid_search(callback, *args):
     grid_names = np.array(np.meshgrid(*args_names)).T.reshape(-1, len(args))
     grid_arguments = np.array(np.meshgrid(
         *args_values)).T.reshape(-1, len(args))
+    
+    pool = Pool(processes=None) # Specify None to use all available CPUs
+    results = pool.starmap(callback_wrapper, [(callback, tuple(grid_names[i]), grid_arguments[i]) for i in range(grid_dimension)])
 
-    results = dict()
-    for i in range(grid_dimension):
-        logger.info(
-            f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
-        start = time.time()
-        res = callback(*grid_arguments[i])
-        logger.debug(f"Iteration {i+1} took {time.time() - start}s")
-        logger.info(f"Result: {res}")
-        results[tuple(grid_names[i])] = res
+
+    results = {name: res for name, res in results}
+    # for i in range(grid_dimension):
+    #     logger.info(
+    #         f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
+    #     start = time.time()
+    #     res = callback(*grid_arguments[i])
+    #     logger.debug(f"Iteration {i+1} took {time.time() - start}s")
+    #     logger.info(f"Result: {res}")
+    #     results[tuple(grid_names[i])] = res
     # convert results into table
     table = []
     for key, value in results.items():
