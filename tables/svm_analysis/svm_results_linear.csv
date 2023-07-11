@@ -1,4 +1,16 @@
 # Kernel;Prior;PCA;Dataset;C;K;MinDCF
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10$;$K = 1$;0.8961566352429295
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10$;$K = 1$;0.9553299492385787
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10$;$K = 1$;0.9293462081599939
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10$;$K = 1$;0.9530132437693218
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10$;$K = 1$;0.8388293067694618
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10$;$K = 1$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10$;$K = 1$;0.9355329949238579
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 1$;0.8696627355190005
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 1$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 1$;0.965482233502538
 Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 1$;0.8396537027848809
 Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 1$;1.0
 Linear;$\pi = 0.9$;No PCA;RAW;$C = 1$;$K = 1$;0.9137055837563453
@@ -35,6 +47,18 @@ Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10^{-4}$;$K = 1$;0.5543147208121827
 Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;0.4933361322086943
 Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;1.0
 Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10^{-4}$;$K = 1$;0.5525056295561237
+Linear;$\pi = 0.5$;No PCA;RAW;$C = 10$;$K = 10$;0.8438761879317582
+Linear;$\pi = 0.1$;No PCA;RAW;$C = 10$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;RAW;$C = 10$;$K = 10$;0.8915919239723675
+Linear;$\pi = 0.5$;PCA $(m=5)$;RAW;$C = 10$;$K = 10$;0.9572331844840528
+Linear;$\pi = 0.1$;PCA $(m=5)$;RAW;$C = 10$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;RAW;$C = 10$;$K = 10$;0.9751269035532993
+Linear;$\pi = 0.5$;No PCA;Z-Norm;$C = 10$;$K = 10$;0.9363192244570817
+Linear;$\pi = 0.1$;No PCA;Z-Norm;$C = 10$;$K = 10$;1.0
+Linear;$\pi = 0.9$;No PCA;Z-Norm;$C = 10$;$K = 10$;0.9634517766497462
+Linear;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 10$;0.9187499204864955
+Linear;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 10$;1.0
+Linear;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$C = 10$;$K = 10$;0.9243654822335026
 Linear;$\pi = 0.5$;No PCA;RAW;$C = 1$;$K = 10$;0.8463506481940892
 Linear;$\pi = 0.1$;No PCA;RAW;$C = 1$;$K = 10$;1.0
 Linear;$\pi = 0.9$;No PCA;RAW;$C = 1$;$K = 10$;0.8878172588832487
