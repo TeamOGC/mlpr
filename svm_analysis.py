@@ -68,16 +68,16 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
 
 
 def main():
-    fast_run = False
+    fast_run = True
     options = [("Linear", "linear"), ("Polynomial", "polynomial"), ("RBF", "RBF")]
     if fast_run:
-        priors = [("$\pi = 0.9$", 0.9)]
-        dataset_types = [("RAW", None),]
-        dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
-        cs = [("$c = 0$", 0)]
-        ds = [("$d = 2$", 2)]
+        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
+        dataset_types = [("RAW", None)]
+        dimred = [("No PCA", None)]
+        cs = [("$c = 0$", 0), ("$c = 1$", 1), ("$c = 10$", 10)]
+        ds = [("$d = 2$", 2), ("$d = 3$", 3)]
         gammas = [("$\gamma = 10^2$", 100)]
-        Cs = [("$C = 1$", 1), ("$C = 10^{-2}$", 0.01)]
+        Cs = [("$C = 10^{-1}$", 0.1)]
         Ks = [("$K = 1$", 1)]
     else:
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
@@ -89,7 +89,7 @@ def main():
         Cs = [("$C = 10$", 10), ("$C = 1$", 1), ("$C = 10^{-2}$", 0.01),  ("$C = 10^{-4}$", 0.0001)] # Regularization parameter
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)] # Kernel offset
 
-    linear_poly_rbf = [True, False, True]
+    linear_poly_rbf = [False, True, False]
 
     if linear_poly_rbf[0]:
         _, linear_table = utilities.grid_search(
