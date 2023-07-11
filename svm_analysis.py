@@ -8,6 +8,8 @@ import numpy.typing as npt
 import numpy as np
 from project import TRAINING_DATA, ROOT_PATH
 import logging
+from project import ZNormalization as znorm_cached
+from project import PCA as PCA_Cached
 from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,7 +32,7 @@ def linear_svm_callback(option, prior, dimred, dataset_type, C, K):
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
 
-    model = SVM.SVM("linear", C=C, K=K)
+    model = SVM.LinearSVM(C=C, K=K)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold
@@ -40,13 +42,11 @@ def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
     assert option == "polynomial"
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
-        from ogc.utilities import ZNormalization as znorm
-        DTR = znorm(DTR)[0]
+        DTR = znorm_cached()
     if dimred != None:
-        from ogc import dimensionality_reduction as dr
-        DTR = dr.PCA(DTR, dimred)[0]
+        DTR = PCA_Cached(dimred)
 
-    model = SVM.SVM("polynomial", c=c, d=d, C=C, K=K)
+    model = SVM.PolynomialSVM(c=c, d=d, C=C, epsilon=K**2)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold
@@ -61,7 +61,7 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
 
-    model = SVM.SVM("RBF", gamma=gamma, C=C, K=K)
+    model = SVM.RBFSVM(gamma, C, K)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold
@@ -69,31 +69,27 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
 
 def main():
     fast_run = False
-
+    options = [("Linear", "linear"), ("Polynomial", "polynomial"), ("RBF", "RBF")]
     if fast_run:
-        priors = [("$\pi = 0.9$", 0.9), ("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1)]
+        priors = [("$\pi = 0.9$", 0.9)]
         dataset_types = [("RAW", None),]
-        dimred = [("No PCA", None)]
-        options = [("Linear", "linear"),
-                ("Polynomial", "polynomial"), ("RBF", "RBF")]
+        dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         cs = [("$c = 0$", 0)]
         ds = [("$d = 2$", 2)]
-        gammas = [("$\gamma = 1$", 1),("$\gamma = 10^2$", 100)]
+        gammas = [("$\gamma = 10^2$", 100)]
         Cs = [("$C = 1$", 1), ("$C = 10^{-2}$", 0.01)]
         Ks = [("$K = 1$", 1)]
     else:
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
-        options = [("Linear", "linear"),
-                ("Polynomial", "polynomial"), ("RBF", "RBF")]
-        cs = [("$c = 0$", 0),("$c = 1}$", 1) ,("$c = 10}$", 10), ("$c = 20}$", 20)] # Polynomial offset
+        cs = [("$c = 0$", 0),("$c = 1$", 1) ,("$c = 10$", 10), ("$c = 20$", 20)] # Polynomial offset
         ds = [("$d = 2$", 2), ("$d = 3$", 3)] # Polynomial degree
-        gammas = [("$\gamma = 1$", 1),("$\gamma = 10^2$", 100)] # RBF gamma
-        Cs = [("$C = 1$", 1), ("$C = 10^{-2}$", 0.01),  ("$C = 10^{-4}$", 0.0001)] # Regularization parameter
+        gammas = [("$\gamma = 10^-3$", 0.001), ("$\gamma = 1$", 1)] # RBF gamma
+        Cs = [("$C = 10$", 10), ("$C = 1$", 1), ("$C = 10^{-2}$", 0.01),  ("$C = 10^{-4}$", 0.0001)] # Regularization parameter
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)] # Kernel offset
 
-    linear_poly_rbf = [True, True, True]
+    linear_poly_rbf = [False, False, True]
 
     if linear_poly_rbf[0]:
         _, linear_table = utilities.grid_search(
@@ -109,7 +105,7 @@ def main():
         
         filename = TABLES_OUTPUT_PATH + "svm_results_poly.csv"
         np.savetxt(filename, poly_table, delimiter=";",
-                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "MinDCF"]))
+                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "MinDCF"]))
 
     if linear_poly_rbf[2]:
         _, rbf_table = utilities.grid_search(

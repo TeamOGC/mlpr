@@ -3,6 +3,8 @@ import numpy.typing as npt
 from typing import Tuple
 import logging
 from functools import cache
+from ogc import dimensionality_reduction as dr
+from ogc import utilities
 logger = logging.getLogger(__name__)
 
 ROOT_PATH = __file__ + "/../"
@@ -29,3 +31,11 @@ def TEST_DATA() -> Tuple[npt.NDArray, npt.NDArray]:
     labels = labels.astype(int)
     # logger.debug("Test Data Shape: " + str(__TEST_DATA.shape))
     return __TEST_DATA[:, :-1].T, labels
+
+@cache
+def PCA(m: int) -> npt.NDArray:
+    return dr.PCA(TRAINING_DATA[0], m)[0]
+
+@cache
+def ZNormalization() -> npt.NDArray:
+    return utilities.ZNormalization(TRAINING_DATA[0])[0]

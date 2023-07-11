@@ -355,6 +355,12 @@ def grid_search(callback, *args):
     table = np.asarray(table, dtype=object)
     return results, table
 
+def constrainSigma(sigma, psi = 0.01):
+    U, s, Vh = np.linalg.svd(sigma)
+    s[s < psi] = psi
+    sigma = np.dot(U, vcol(s)*U.T)
+    return sigma
+
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
