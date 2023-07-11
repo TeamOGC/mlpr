@@ -294,10 +294,9 @@ def ZNormalization(D, mean=None, standardDeviation=None):
 
 def callback_wrapper(*args):
     callback, name, args = args[0], args[1], args[2]
-    logger.debug(f"Starting iteration {name}")
     start = time.time()
     res = callback(*args)
-    logger.info(f"Result: {res}")
+    logger.info(f"{name} -> {res}")
     logger.debug(f"{time.time() - start}s elapsed")
     return (name, res)
 

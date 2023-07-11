@@ -89,7 +89,7 @@ def main():
         Cs = [("$C = 10$", 10), ("$C = 1$", 1), ("$C = 10^{-2}$", 0.01),  ("$C = 10^{-4}$", 0.0001)] # Regularization parameter
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)] # Kernel offset
 
-    linear_poly_rbf = [False, False, True]
+    linear_poly_rbf = [True, False, True]
 
     if linear_poly_rbf[0]:
         _, linear_table = utilities.grid_search(

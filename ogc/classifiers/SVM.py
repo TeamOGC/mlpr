@@ -119,6 +119,7 @@ class LinearSVM(BaseClassifier):
 
     def fit(self, training_set: Tuple[npt.NDArray, npt.NDArray]):
         DTR, LTR = training_set
+        LTR = LTR * 2 - 1
         self.w: npt.NDArray = modifiedDualFormulation(DTR, LTR, self.C, self.K)
 
     def predictAndGetScores(self, DTE: npt.NDArray) -> float:
