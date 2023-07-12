@@ -1,6 +1,6 @@
 import numpy as np
 from ... import utilities  
-import multivariateGaussianGMM
+from . import multivariateGaussianGMM
 
 
 def Estep(logdens, S):

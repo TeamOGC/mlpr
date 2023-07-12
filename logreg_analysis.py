@@ -20,15 +20,14 @@ makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 
 
-def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_prior = None):
-    model = LogisticRegression.LogisticRegression(l, logreg_prior, weighted=weighted, quadratic=quadratic)
+def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_prior=None):
+    model = LogisticRegression.LogisticRegression(
+        l, logreg_prior, weighted=weighted, quadratic=quadratic)
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
-        from ogc.utilities import ZNormalization as znorm
-        DTR = znorm(DTR)[0]
+        DTR = znorm_cached()
     if dimred != None:
-        from ogc import dimensionality_reduction as dr
-        DTR = dr.PCA(DTR, dimred)[0]
+        DTR = PCA_Cached(dimred)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold
@@ -42,17 +41,19 @@ def main():
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
         dimred = [("No PCA", None)]
         weighted = [("Weighted", True), ("Unweighted", False)]
-        quadratic = [ ("Quadratic", True), ("Linear", False)]
+        quadratic = [("Quadratic", True), ("Linear", False)]
         logreg_priors = [("$\pi = 0.1$", 0.1)]
     else:
-        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
+        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
+                  ("$\pi = 0.9$", 0.9)]
         l = [("$10^3$", 100), ("$10^2$", 10), ("$10$", 1), ("$10^{-1}$", 0.1), ("$10^{-2}$", 0.01), ("$10^{-3}$",
-                                                                                                    0.001), ("$10^{-4}$", 0.0001), ("$10^{-5}$", 0.00001)]
+                                                                                                     0.001), ("$10^{-4}$", 0.0001), ("$10^{-5}$", 0.00001)]
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         weighted = [("Weighted", True), ("Unweighted", False)]
-        quadratic = [ ("Quadratic", True), ("Linear", False)]
-        logreg_priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
+        quadratic = [("Quadratic", True), ("Linear", False)]
+        logreg_priors = [("$\pi = 0.5$", 0.5),
+                         ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
 
     _, weighted_table = utilities.grid_search(
         logreg_callback, priors, l, dimred, dataset_types, [weighted[0]], quadratic, logreg_priors)
@@ -76,4 +77,3 @@ if __name__ == "__main__":
         main()
     finally:
         print(f"Time elapsed: {time.time() - start} seconds")
-
