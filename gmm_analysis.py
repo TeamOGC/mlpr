@@ -33,9 +33,11 @@ def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
         model = GMM.GMM(components)
 
     if dataset_type == "Z-Norm":
-        DTR = znorm_cached()
+        from ogc import utilities as utils
+        DTR = utils.ZNormalization(DTR)[0]
     if dimred != None:
-        DTR = PCA_Cached(dimred)
+        from ogc import dimensionality_reduction as dr
+        DTR = dr.PCA(DTR, dimred)[0]
 
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold
@@ -54,8 +56,8 @@ def main():
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
                   ("$\pi = 0.9$", 0.9)]
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
-        mvg_params = [("Standard MVG", {}), ("Naive MVG", {
-            "naive": True}), ("Tied MVG", {"tied": True})]
+        mvg_params = [("Standard GMM", {}), ("Naive GMM", {
+            "naive": True}), ("Tied GMM", {"tied": True})]
 
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         components = [("1", 1), ("2", 2), ("3", 3), ("4", 4)]
