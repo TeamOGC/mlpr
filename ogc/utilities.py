@@ -293,18 +293,14 @@ def ZNormalization(D, mean=None, standardDeviation=None):
     return ZD, mean, standardDeviation
 
 
-
 def callback_wrapper(*args):
-    callback, i, name, args = args[0], args[1], args[2], args[3]
     callback, i, name, args = args[0], args[1], args[2], args[3]
     start = time.time()
     logger.info(f"{i} - {name}")
     res = callback(*args)
-    logger.info(f"{i} - {name} -> {res}")
-    logger.info(f"Result: {res}")
+    logger.info(f"Result {i}: {res}")
     logger.debug(f"{time.time() - start}s elapsed")
     return (name, res)
-
 
 
 def grid_search(callback, *args):
@@ -341,7 +337,7 @@ def grid_search(callback, *args):
         *args_values)).T.reshape(-1, len(args))
 
     pool = Pool(processes=None)  # Specify None to use all available CPUs
-    results = pool.starmap(callback_wrapper, [(callback, f"{i}/{grid_dimension}", tuple(
+    results = pool.starmap(callback_wrapper, [(callback, f"{i+1}/{grid_dimension}", tuple(
         grid_names[i]), grid_arguments[i]) for i in range(grid_dimension)])
 
     results = {name: res for name, res in results}

@@ -40,10 +40,11 @@ def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
     assert option == "polynomial"
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
-        DTR = znorm_cached()
+        from ogc import utilities as utils
+        DTR = utils.ZNormalization(DTR)[0]
     if dimred != None:
-        DTR = PCA_Cached(dimred)
-
+        from ogc import dimensionality_reduction as dr
+        DTR = dr.PCA(DTR, dimred)[0]
     model = SVM.PolynomialSVM(c=c, d=d, C=C, epsilon=K**2)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
@@ -54,10 +55,11 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
     assert option == "RBF"
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
-        DTR = znorm_cached()
+        from ogc import utilities as utils
+        DTR = utils.ZNormalization(DTR)[0]
     if dimred != None:
-        DTR = PCA_Cached(dimred)
-
+        from ogc import dimensionality_reduction as dr
+        DTR = dr.PCA(DTR, dimred)[0]
     model = SVM.RBFSVM(gamma, C, K)
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
@@ -66,16 +68,18 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
 
 def main():
     fast_run = True
-    options = [("Linear", "linear"), ("Polynomial", "polynomial"), ("RBF", "RBF")]
+    options = [("Linear", "linear"),
+               ("Polynomial", "polynomial"), ("RBF", "RBF")]
     if fast_run:
-        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
-        dataset_types = [("RAW", None)]
-        dimred = [("No PCA", None)]
-        cs = [("$c = 0$", 0), ("$c = 1$", 1), ("$c = 10$", 10)]
-        ds = [("$d = 2$", 2), ("$d = 3$", 3)]
-        gammas = [("$\gamma = 10^2$", 100)]
-        Cs = [("$C = 10^{-1}$", 0.1)]
-        Ks = [("$K = 1$", 1)]
+        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
+                  ("$\pi = 0.9$", 0.9)]
+        dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
+        dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
+        cs = [("$c = 10$", 10), ]
+        ds = [("$d = 2$", 2), ]
+        gammas = [("$\gamma = 10^2$", 100), ]
+        Cs = [("$C = 10^{-1}$", 0.1), ]
+        Ks = [("$K = 1$", 1), ]
     else:
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
                   ("$\pi = 0.9$", 0.9)]
