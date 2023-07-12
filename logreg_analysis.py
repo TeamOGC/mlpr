@@ -25,9 +25,11 @@ def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_
         l, logreg_prior, weighted=weighted, quadratic=quadratic)
     DTR, LTR = TRAINING_DATA()
     if dataset_type == "Z-Norm":
-        DTR = znorm_cached()
+        from ogc.utilities import ZNormalization as znorm
+        DTR = znorm(DTR)[0]
     if dimred != None:
-        DTR = PCA_Cached(dimred)
+        from ogc import dimensionality_reduction as dr
+        DTR = dr.PCA(DTR, dimred)[0]
     from ogc.utilities import Kfold
     kfold = Kfold(DTR, LTR, model, 5, prior=prior)
     return kfold

@@ -46,7 +46,7 @@ if __name__ == "__main__":
         priors = [("0.5", 0.5), ("0.1", 0.1), ("0.9",0.9)]
         mvg_params = [("Standard MVG", {}), ("Naive MVG", {"naive": True}), ("Tied MVG", {"tied": True}), ("Tied Naive MVG", {"naive": True, "tied": True})]
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
-        dimred = [("No PCA", None), ("PCA 11", 11), ("PCA 10", 10), ("PCA 9", 9)]
+        dimred = [("No PCA", None), ("PCA 5", 5)]
     else:
         priors = [("0.5", 0.5)]
         dataset_types = [("RAW", None)]

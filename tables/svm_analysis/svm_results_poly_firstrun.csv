@@ -1,0 +1,19 @@
+# Kernel;Prior;PCA;Dataset;c;d;C;Epsilon;MinDCF
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.0960332302838314
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.4338116865768482
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 0$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.18898896988664557
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 1$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.09650903909519992
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 1$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.41151228324618655
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 1$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.18296248234800197
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.10101395621032276
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.4215666068725112
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.16598984771573605
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 0$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.5869915906517563
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 0$;$d = 3$;$C = 10^{-1}$;$K = 1$;1.0
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 0$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.6839128277546659
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 1$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.49447603781026167
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 1$;$d = 3$;$C = 10^{-1}$;$K = 1$;1.0
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 1$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.6314720812182743
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 10$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.4502194572726232
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 10$;$d = 3$;$C = 10^{-1}$;$K = 1$;1.0
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 10$;$d = 3$;$C = 10^{-1}$;$K = 1$;0.564909736269608

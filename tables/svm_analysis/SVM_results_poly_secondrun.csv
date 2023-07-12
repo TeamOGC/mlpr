@@ -1,0 +1,13 @@
+# Kernel;Prior;PCA;Dataset;c;d;C;Epsilon;MinDCF
+Polynomial;$\pi = 0.5$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.10101395621032276
+Polynomial;$\pi = 0.1$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.4215666068725112
+Polynomial;$\pi = 0.9$;No PCA;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.16598984771573605
+Polynomial;$\pi = 0.5$;PCA $(m=5)$;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.09504980725926492
+Polynomial;$\pi = 0.1$;PCA $(m=5)$;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.39444168797628587
+Polynomial;$\pi = 0.9$;PCA $(m=5)$;RAW;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.18550055341399183
+Polynomial;$\pi = 0.5$;No PCA;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.10323524547409133
+Polynomial;$\pi = 0.1$;No PCA;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.40389425339999746
+Polynomial;$\pi = 0.9$;No PCA;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.17303156368077555
+Polynomial;$\pi = 0.5$;PCA $(m=5)$;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.10282304746638168
+Polynomial;$\pi = 0.1$;PCA $(m=5)$;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.39399768456674683
+Polynomial;$\pi = 0.9$;PCA $(m=5)$;Z-Norm;$c = 10$;$d = 2$;$C = 10^{-1}$;$K = 1$;0.1596122285408954
