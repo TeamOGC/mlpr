@@ -75,7 +75,7 @@ def main():
                   ("$\pi = 0.9$", 0.9)]
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
-        cs = [("$c = 10$", 10), ]
+        cs = [("$c = 1$", 1), ]
         ds = [("$d = 2$", 2), ]
         gammas = [("$\gamma = 10^2$", 100), ]
         Cs = [("$C = 10^{-1}$", 0.1), ]
