@@ -67,7 +67,7 @@ def rbf_svm_callback(option, prior, dimred, dataset_type, gamma, C, K):
 
 
 def main():
-    fast_run = True
+    fast_run = False
     options = [("Linear", "linear"),
                ("Polynomial", "polynomial"), ("RBF", "RBF")]
     if fast_run:
@@ -95,7 +95,7 @@ def main():
               ("$C = 10^{-2}$", 0.01),  ("$C = 10^{-4}$", 0.0001)]
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)]  # Kernel offset
 
-    linear_poly_rbf = [False, True, False]
+    linear_poly_rbf = [False, False, True]
 
     if linear_poly_rbf[0]:
         _, linear_table = utilities.grid_search(
