@@ -69,7 +69,8 @@ def modifiedDualFormulation(DTR, LTR, C, K) -> npt.NDArray:
     '''
     # Compute the D matrix for the extended training set
     classes = np.unique(LTR)
-    assert (len(classes) == 2 and classes[0] == -1 and classes[1] == 1), "The classes must be -1 and 1"
+    assert (len(classes) == 2 and classes[0] == -
+            1 and classes[1] == 1), "The classes must be -1 and 1"
 
     row = np.zeros(DTR.shape[1])+K
     D = np.vstack([DTR, row])
@@ -89,21 +90,26 @@ def modifiedDualFormulation(DTR, LTR, C, K) -> npt.NDArray:
 def kernelPoly(DTR, LTR, epsilon, C, d, c) -> npt.NDArray:
     # Compute the H matrix
     classes = np.unique(LTR)
-    assert (len(classes) == 2 and classes[0] == -1 and classes[1] == 1), "The classes must be -1 and 1"
+    assert (len(classes) == 2 and classes[0] == -
+            1 and classes[1] == 1), "The classes must be -1 and 1"
     kernelFunction = (np.dot(DTR.T, DTR)+c)**d + epsilon
     zizj = np.dot(LTR.reshape(LTR.size, 1), LTR.reshape(1, LTR.size))
     Hij = zizj*kernelFunction
     b = list(repeat((0, C), DTR.shape[1]))
     (x, _, _) = scipy.optimize.fmin_l_bfgs_b(LD_objectiveFunctionOfModifiedDualFormulation,
-                                                np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
+                                             np.zeros(DTR.shape[1]), args=(Hij,), bounds=b, factr=1.0)
     return x
+
 
 def kernelRBF(DTR, LTR, gamma,  K, C):
     # Compute the H matrix
     classes = np.unique(LTR)
-    assert (len(classes) == 2 and classes[0] == -1 and classes[1] == 1), "The classes must be -1 and 1"
-    Dist = vcol((DTR**2).sum(0)) + vrow((DTR**2).sum(0)) - 2* np.dot(DTR.T, DTR)
-    kernelFunction = np.exp(-gamma * Dist) + (K**2) # np.zeros((DTR.shape[1], DTR.shape[1]))
+    assert (len(classes) == 2 and classes[0] == -
+            1 and classes[1] == 1), "The classes must be -1 and 1"
+    Dist = vcol((DTR**2).sum(0)) + vrow((DTR**2).sum(0)) - \
+        2 * np.dot(DTR.T, DTR)
+    # np.zeros((DTR.shape[1], DTR.shape[1]))
+    kernelFunction = np.exp(-gamma * Dist) + (K**2)
     zizj = np.dot(LTR.reshape(LTR.size, 1), LTR.reshape(1, LTR.size))
     Hij = zizj*kernelFunction
     b = list(repeat((0, C), DTR.shape[1]))
@@ -112,7 +118,7 @@ def kernelRBF(DTR, LTR, gamma,  K, C):
     return x
 
 
-class LinearSVM(BaseClassifier): 
+class LinearSVM(BaseClassifier):
     def __init__(self, C: float, K: int = 1):
         self.C = C
         self.K = K
@@ -125,9 +131,9 @@ class LinearSVM(BaseClassifier):
     def predictAndGetScores(self, DTE: npt.NDArray) -> float:
         DTE = np.vstack([DTE, np.zeros(DTE.shape[1])+self.K])
         return np.dot(self.w.T, DTE)
-    
 
-class PolynomialSVM(BaseClassifier): 
+
+class PolynomialSVM(BaseClassifier):
     def __init__(self, d: int, c: float, C: float, epsilon: int = 1) -> None:
         self.d = d
         self.c = c
@@ -139,15 +145,18 @@ class PolynomialSVM(BaseClassifier):
         self.DTR = DTR
         self.LTR = LTR * 2 - 1
         classes = np.unique(self.LTR)
-        assert (len(classes) == 2 and classes[0] == -1 and classes[1] == 1), "The classes must be -1 and 1"
-        self.x = kernelPoly(self.DTR, self.LTR, self.epsilon, self.C, self.d, self.c)
+        assert (len(classes) == 2 and classes[0] == -
+                1 and classes[1] == 1), "The classes must be -1 and 1"
+        self.x = kernelPoly(self.DTR, self.LTR,
+                            self.epsilon, self.C, self.d, self.c)
 
     def predictAndGetScores(self, DTE: npt.NDArray) -> float:
         aizi = (self.x*self.LTR).reshape(1, self.DTR.shape[1])
         kxixj = (np.dot(self.DTR.T, DTE)+self.c) ** self.d
         S = np.sum(np.dot(aizi, kxixj + self.epsilon), axis=0)
         return S
-    
+
+
 class RBFSVM(BaseClassifier):
 
     def __init__(self, gamma: float, C: float, K: int = 1):
@@ -159,14 +168,18 @@ class RBFSVM(BaseClassifier):
         self.DTR, self.LTR = training_set
         self.LTR = self.LTR * 2 - 1
         classes = np.unique(self.LTR)
-        assert (len(classes) == 2 and classes[0] == -1 and classes[1] == 1), "The classes must be -1 and 1"
+        assert (len(classes) == 2 and classes[0] == -
+                1 and classes[1] == 1), "The classes must be -1 and 1"
 
         x = kernelRBF(self.DTR, self.LTR, self.gamma, self.K, self.C)
         self.x = x
+
     def predictAndGetScores(self, DTE: npt.NDArray) -> float:
-        Dist = vcol((self.DTR**2).sum(0)) + vrow((self.DTR**2).sum(0)) - 2* np.dot(self.DTR.T, self.DTR)
-        kernelFunction = np.exp(-self.gamma * Dist) + (self.K**2) # np.zeros((DTR.shape[1], DTR.shape[1]))
+        Dist = vcol((self.DTR**2).sum(0)) + \
+            vrow((DTE**2).sum(0)) - 2 * np.dot(self.DTR.T, DTE)
+        # np.zeros((DTR.shape[1], DTR.shape[1]))
+        kernelFunction = np.exp(-self.gamma * Dist) + (self.K**2)
 
         S = np.sum(np.dot((self.x*self.LTR).reshape(1,
-                    self.DTR.shape[1]), kernelFunction), axis=0)
+                                                    self.DTR.shape[1]), kernelFunction), axis=0)
         return S
