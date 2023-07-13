@@ -64,11 +64,16 @@ def main():
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         components = [("1", 1), ("2", 2), ("3", 3), ("4", 4)]
 
-    _, table = utilities.grid_search(
-        GMM_callback, priors, dataset_types, mvg_params, dimred, components)
+    use_csv = True
+    if use_csv:
+        table = utilities.load_from_csv(TABLES_OUTPUT_PATH + "gmm_results.csv")
+        table1 = utilities.load_from_csv(TABLES_OUTPUT_PATH + "gmm_results1.csv") 
+    else:
+        _, table = utilities.grid_search(
+            GMM_callback, priors, dataset_types, mvg_params, dimred, components)
 
-    np.savetxt(TABLES_OUTPUT_PATH + "gmm_results.csv", table, delimiter=";", fmt="%s",
-               header=";".join(["Prior", "Dataset", "MVG", "PCA", "Components", "MinDCF"]))
+        np.savetxt(TABLES_OUTPUT_PATH + "gmm_results.csv", table, delimiter=";", fmt="%s",
+                header=";".join(["Prior", "Dataset", "MVG", "PCA", "Components", "MinDCF"]))
 
 
 if __name__ == "__main__":
