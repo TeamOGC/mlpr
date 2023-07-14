@@ -46,11 +46,13 @@ def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
 def main():
     fast_run = False
     if fast_run:
-        priors = [("$\pi = 0.5$", 0.5)]
-        dataset_types = [("RAW", None)]
-        mvg_params = [("Standard MVG", {})]
-        dimred = [("No PCA", None)]
-        components = [("1", 1), ("2", 2)]
+        priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
+                  ("$\pi = 0.9$", 0.9)]
+        dataset_types = [("RAW", None), ("Z-Norm", "Z-Norm")]
+        mvg_params = [("Naive GMM", {
+            "naive": True}), ("Tied GMM", {"tied": True})]
+        dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
+        components = [("5", 5)]
 
     else:
         priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
