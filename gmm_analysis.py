@@ -64,7 +64,7 @@ def main():
         dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
         components = [("1", 1), ("2", 2), ("3", 3), ("4", 4)]
 
-    use_csv = True
+    use_csv = True 
     if use_csv:
         table = utilities.load_from_csv(TABLES_OUTPUT_PATH + "gmm_results.csv")
         table1 = utilities.load_from_csv(TABLES_OUTPUT_PATH + "gmm_results1.csv") 

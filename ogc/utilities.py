@@ -233,7 +233,7 @@ def Ksplit(D, L, K=5, seed=0):
     return folds, labels
 
 
-def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5):
+def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act = False):
     if K > 1:
         folds, labels = Ksplit(D, L, seed=0, K=K)
         orderedLabels = []
@@ -254,7 +254,10 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5):
         scores = np.hstack(scores)
         orderedLabels = np.hstack(orderedLabels).astype(int)
         labels = np.hstack(labels)
-        return metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)
+        if act:
+            return metrics.compute_actual_DCF(scores, labels, prior, 1, 1)
+        else:
+            return metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)
     else:
         print("K cannot be <=1")
     return
@@ -376,5 +379,9 @@ def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:
                 continue
             l.append(row)
     return l
+
+
+    
+
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)

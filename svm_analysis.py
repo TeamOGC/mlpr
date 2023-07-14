@@ -96,7 +96,7 @@ def main():
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)]  # Kernel offset
 
     linear_poly_rbf = [False, False, True]
-    use_csv = True
+    use_csv = False
 
     if use_csv:
         linear_table = utilities.load_from_csv(
