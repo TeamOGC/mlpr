@@ -57,19 +57,22 @@ def main():
         logreg_priors = [("$\pi = 0.5$", 0.5),
                          ("$\pi = 0.1$", 0.1), ("$\pi = 0.9$", 0.9)]
 
-    _, weighted_table = utilities.grid_search(
-        logreg_callback, priors, l, dimred, dataset_types, [weighted[0]], quadratic, logreg_priors)
-    np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_weighted.csv", weighted_table, delimiter=";",
-               fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
+    use_csv = True
 
-    _, table = utilities.grid_search(
-        logreg_callback, priors, l, dimred, dataset_types, [weighted[1]], quadratic)
-    np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_unweighted.csv", table, delimiter=";",
-               fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "MinDCF"]))
-
-    # table = np.vstack([weighted_table, table])
-    # np.savetxt(TABLES_OUTPUT_PATH + "logreg_results.csv", table, delimiter=";",
-    #            fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
+    if use_csv:
+        weighted_table = utilities.load_from_csv(TABLES_OUTPUT_PATH + "logreg_results_weighted.csv")
+    else:
+        _, weighted_table = utilities.grid_search(
+            logreg_callback, priors, l, dimred, dataset_types, [weighted[0]], quadratic, logreg_priors)
+        np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_weighted.csv", weighted_table, delimiter=";",
+                fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
+    if use_csv:
+        table = utilities.load_from_csv(TABLES_OUTPUT_PATH + "logreg_results_unweighted.csv")
+    else:
+        _, table = utilities.grid_search(
+            logreg_callback, priors, l, dimred, dataset_types, [weighted[1]], quadratic)
+        np.savetxt(TABLES_OUTPUT_PATH + "logreg_results_unweighted.csv", table, delimiter=";",
+                fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "MinDCF"]))
 
 
 if __name__ == "__main__":

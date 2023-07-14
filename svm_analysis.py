@@ -96,35 +96,39 @@ def main():
         Ks = [("$K = 1$", 1), ("$K = 10$", 10)]  # Kernel offset
 
     linear_poly_rbf = [False, False, True]
+    use_csv = True
 
-    if linear_poly_rbf[0]:
-        _, linear_table = utilities.grid_search(
-            linear_svm_callback, [options[0]], priors, dimred, dataset_types, Cs, Ks)
+    if use_csv:
+        linear_table = utilities.load_from_csv(
+            TABLES_OUTPUT_PATH + "svm_results_linear.csv")
+        poly_table = utilities.load_from_csv(
+            TABLES_OUTPUT_PATH + "svm_results_poly.csv") # NOTE: Multiple files are present, use the one you want
+        rbf_table = utilities.load_from_csv(
+            TABLES_OUTPUT_PATH + "svm_results_rbf.csv")
+    else:
+        if linear_poly_rbf[0]:
+            _, linear_table = utilities.grid_search(
+                linear_svm_callback, [options[0]], priors, dimred, dataset_types, Cs, Ks)
 
-        filename = TABLES_OUTPUT_PATH + "svm_results_linear.csv"
-        np.savetxt(filename, linear_table, delimiter=";",
-                   fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "C", "K", "MinDCF"]))
+            filename = TABLES_OUTPUT_PATH + "svm_results_linear.csv"
+            np.savetxt(filename, linear_table, delimiter=";",
+                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "C", "K", "MinDCF"]))
 
-    if linear_poly_rbf[1]:
-        _, poly_table = utilities.grid_search(
-            poly_svm_callback, [options[1]], priors, dimred, dataset_types, cs, ds, Cs, Ks)
+        if linear_poly_rbf[1]:
+            _, poly_table = utilities.grid_search(
+                poly_svm_callback, [options[1]], priors, dimred, dataset_types, cs, ds, Cs, Ks)
 
-        filename = TABLES_OUTPUT_PATH + "svm_results_poly.csv"
-        np.savetxt(filename, poly_table, delimiter=";",
-                   fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "MinDCF"]))
+            filename = TABLES_OUTPUT_PATH + "svm_results_poly.csv"
+            np.savetxt(filename, poly_table, delimiter=";",
+                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "MinDCF"]))
 
-    if linear_poly_rbf[2]:
-        _, rbf_table = utilities.grid_search(
-            rbf_svm_callback, [options[2]], priors, dimred, dataset_types, gammas, Cs, Ks)
-        filename = TABLES_OUTPUT_PATH + "svm_results_rbf.csv"
-        np.savetxt(filename, rbf_table, delimiter=";",
-                   fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "Gamma", "C", "K", "MinDCF"]))
-
-    if all(linear_poly_rbf):
-        table = np.vstack([linear_table, poly_table, rbf_table])
-
-        np.savetxt(TABLES_OUTPUT_PATH + "logreg_results.csv", table, delimiter=";",
-                   fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "MinDCF"]))
+        if linear_poly_rbf[2]:
+            _, rbf_table = utilities.grid_search(
+                rbf_svm_callback, [options[2]], priors, dimred, dataset_types, gammas, Cs, Ks)
+            filename = TABLES_OUTPUT_PATH + "svm_results_rbf.csv"
+            np.savetxt(filename, rbf_table, delimiter=";",
+                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "Gamma", "C", "K", "MinDCF"]))
+            
 
 
 if __name__ == "__main__":

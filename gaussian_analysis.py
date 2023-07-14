@@ -53,8 +53,12 @@ if __name__ == "__main__":
         mvg_params = [("Standard MVG", {})]
         dimred = [("No PCA", None)]
 
-    results, table = utilities.grid_search(mvg_callback, priors, mvg_params, dimred, dataset_types)   
+    use_csv = True
+    if use_csv:
+        table = utilities.load_from_csv(TABLES_OUTPUT_PATH + "mvg_results.csv")
+    else:
+        _, table = utilities.grid_search(mvg_callback, priors, mvg_params, dimred, dataset_types)   
+        np.savetxt(TABLES_OUTPUT_PATH + "mvg_results.csv", table, delimiter=";", fmt="%s", header=";".join(["Prior", "MVG", "PCA", "Dataset", "MinDCF"]))
 
-    np.savetxt(TABLES_OUTPUT_PATH + "mvg_results.csv", table, delimiter=";", fmt="%s", header=";".join(["Prior", "MVG", "PCA", "Dataset", "MinDCF"]))
 
     print(f"Time elapsed: {time.time() - start} seconds")

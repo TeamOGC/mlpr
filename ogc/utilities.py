@@ -9,6 +9,7 @@ from typing import Tuple, TYPE_CHECKING
 from . import metrics
 import logging
 import time
+import csv
 from multiprocessing import Pool
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -364,6 +365,16 @@ def constrainSigma(sigma, psi=0.01):
     sigma = np.dot(U, vcol(s)*U.T)
     return sigma
 
-
+def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:
+    l = []
+    with open(filename, "r") as f:
+        reader = csv.reader(f, delimiter=";", )
+        for i, row in enumerate(reader):
+            if i != 0:
+                row[-1] = float(row[-1])
+            if skip_headers and i == 0:
+                continue
+            l.append(row)
+    return l
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
