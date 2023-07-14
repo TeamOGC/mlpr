@@ -15,7 +15,7 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 OUTPUT_PATH = ROOT_PATH + "../images/wrap_up/"
 TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/wrap_up/"
@@ -64,8 +64,9 @@ def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
     from ogc.utilities import Kfold
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=True, lambd=0.01)
     return kfold
+
 
 def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
     from ogc.utilities import Kfold
@@ -89,9 +90,12 @@ def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
 
 
 def main():
+    numberOfPoints=18
+    effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
+    effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
+
     options = [("Polynomial", "polynomial")]
-    priors = [("$\pi = 0.5$", 0.5), ("$\pi = 0.1$", 0.1),
-                  ("$\pi = 0.9$", 0.9)]
+    priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
     dataset_types = [("RAW", None)]
     dimred = [("No PCA", None), ("PCA $(m=5)$", 5)]
     weighted = [("Weighted", True)]
@@ -104,26 +108,58 @@ def main():
     ds = [("$d = 2$", 2), ]
     mvg_params = [("Standard MVG", {})]
     components = [("5", 5)]
-    gmm_params = [("Diagonal GMM", {"naive" : True})]
+    gmm_params = [("Diagonal GMM", {"naive": True})]
     gmm_dataset = [("Z-Norm", "Z-Norm")]
 
+    use_csv: bool = False
 
-    _, final_results_poly = utilities.grid_search(poly_svm_callback,[options[0]],  priors, [dimred[1]], dataset_types, cs, ds, Cs, Ks)
-    filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
-    np.savetxt(filename, final_results_poly, delimiter=";",
-                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
-    _, final_results_mvg = utilities.grid_search(mvg_callback, priors,mvg_params, dimred, dataset_types)
-    filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
-    np.savetxt(filename, final_results_mvg, delimiter=";", fmt="%s", header=";".join(["Prior", "MVG", "PCA", "Dataset", "actDCF"]))
-    _, final_results_logreg = utilities.grid_search(logreg_callback, priors, l, dimred, dataset_types, weighted, quadratic, logreg_prior)
-    filename = TABLES_OUTPUT_PATH + "logreg_best.csv"
-    np.savetxt(filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF"]))
-    _, final_results_gmm = utilities.grid_search(GMM_callback, priors, gmm_dataset, gmm_params, dimred, components)
-    filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
-    np.savetxt(filename, final_results_gmm, delimiter=";", fmt="%s", header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
+    # filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
+    # if use_csv:
+    #     final_results_mvg = utilities.load_from_csv(filename)
+    # else:
+    #     _, final_results_mvg = utilities.grid_search(
+    #         mvg_callback, priors, mvg_params, [dimred[0]], dataset_types)
+    #     np.savetxt(filename, final_results_mvg, delimiter=";", fmt="%s",
+    #                header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
+    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, "Standard MVG", filename=TABLES_OUTPUT_PATH + "mvg_bayes_error.png")
+    # filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
+    # if use_csv:
+    #     final_results_gmm = utilities.load_from_csv(filename)
+    # else:
+    #     _, final_results_gmm = utilities.grid_search(
+    #         GMM_callback, priors, gmm_dataset, gmm_params, [dimred[0]], components)
+    #     np.savetxt(filename, final_results_gmm, delimiter=";", fmt="%s",
+    #                header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
+    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, "GMM", filename=TABLES_OUTPUT_PATH + "gmm_bayes_error.png")
+
+    # filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
+    # if use_csv:
+    #     final_results_poly = utilities.load_from_csv(filename)
+    # else:
+    #     _, final_results_poly = utilities.grid_search(poly_svm_callback, [options[0]],  priors, [
+    #                                                   dimred[1]], dataset_types, cs, ds, Cs, Ks)
+    #     np.savetxt(filename, final_results_poly, delimiter=";",
+    #                fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
+    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, "Polynomial SVM", filename=TABLES_OUTPUT_PATH + "poly_bayes_error.png")
+
+
+    filename = TABLES_OUTPUT_PATH + "logreg_best_calib.csv"
+    if use_csv:
+        final_results_logreg = utilities.load_from_csv(filename)
+    else:
+        _, final_results_logreg = utilities.grid_search(
+            logreg_callback, priors, l, [dimred[1]], dataset_types, weighted, quadratic, logreg_prior)
+        np.savetxt(filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
+            ["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF", "ActDCF"]))
+    utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, "Logistic Regression - Calibrated", filename=TABLES_OUTPUT_PATH + "logreg_bayes_error_calibrated.png")
+
+
+    # return (final_results_mvg, final_results_logreg, final_results_poly, final_results_gmm)
 
 if __name__ == "__main__":
     import time
     start = time.time()
     main()
+    
+
     print(f"Time elapsed: {time.time() - start} seconds")

@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 from . import utilities as utils
 
 
@@ -37,15 +38,21 @@ def minimum_detection_costs(llr, LTE, pi1, cfn, cfp):
         NDCF.append(normalized_detection_cost_function(uDCF, pi1, cfn, cfp))
 
     index = np.argmin(NDCF)
+    print(sorted_llr[index])
 
     return NDCF[index]
 
 
-def compute_actual_DCF(llr, LTE, pi1, cfn, cfp):
+def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp):
 
-    predictions = (llr > (-np.log(pi1/(1-pi1)))).astype(int)
+    if LTE.min() != 0:
+        print("LTE must start from 0")
+        LTE = LTE + 1 / 2
+    t = -np.log(pi1/(1-pi1))
+    predictions = (llr > t).astype(int)
+    print(f"{t=}")
 
-    confMatrix = utils.confusionMatrix(predictions, LTE, LTE.max()+1)
+    confMatrix = utils.confusionMatrix(predictions, LTE, int(LTE.max()+1))
     uDCF = detection_cost_function(confMatrix, pi1, cfn, cfp)
 
     NDCF = (normalized_detection_cost_function(uDCF, pi1, cfn, cfp))

@@ -233,7 +233,8 @@ def Ksplit(D, L, K=5, seed=0):
     return folds, labels
 
 
-def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act = False):
+def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calibrate: bool = False, lambd: float = None):
+    assert calibrate == False or lambd != None, "Lambda must be specified when calibrating"
     if K > 1:
         folds, labels = Ksplit(D, L, seed=0, K=K)
         orderedLabels = []
@@ -254,40 +255,31 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act = False):
         scores = np.hstack(scores)
         orderedLabels = np.hstack(orderedLabels).astype(int)
         labels = np.hstack(labels)
+        if calibrate:
+            scores = calibrateScores(scores, orderedLabels, lambd).flatten()
         if act:
-            return metrics.compute_actual_DCF(scores, labels, prior, 1, 1)
+            return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1), metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1)]
         else:
-            return metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)
+            return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
     else:
         print("K cannot be <=1")
     return
 
 
 def leave_one_out(n_samples):
-    return k_fold(n_samples, n_samples)
+    return KFold(n_samples, n_samples)
 
 
-def confusionMatrix(predictedLabels, actualLabels, K):
-    # Initialize matrix of K x K zeros
-    matrix = np.zeros((K, K), dtype=int)
-    # We're computing the confusion
-    # matrix which "counts" how many times we get prediction i when the actual
-    # label is j.
-    for i in range(actualLabels.size):
-        matrix[predictedLabels[i], actualLabels[i]] += 1
-    return matrix
-
-
-def confusionMatrix(predictedLabels, actualLabels, K):
+def confusionMatrix(predictedLabels: npt.NDArray, actualLabels: npt.NDArray, K: int):
+    assert predictedLabels.size == actualLabels.size, "Predicted and actual labels must have the same size"
     # Initialize matrix of K x K zeros
     matrix = np.zeros((K, K)).astype(int)
     # We're computing the confusion
     # matrix which "counts" how many times we get prediction i when the actual
     # label is j.
     for i in range(actualLabels.size):
-        matrix[predictedLabels[i], actualLabels[i]] += 1
+        matrix[int(predictedLabels[i]), int(actualLabels[i])] += 1
     return matrix
-
 
 def ZNormalization(D, mean=None, standardDeviation=None):
     if mean is None and standardDeviation is None:
@@ -340,11 +332,12 @@ def grid_search(callback, *args):
     grid_arguments = np.array(np.meshgrid(
         *args_values)).T.reshape(-1, len(args))
 
+    # results = {}
     pool = Pool(processes=None)  # Specify None to use all available CPUs
     results = pool.starmap(callback_wrapper, [(callback, f"{i+1}/{grid_dimension}", tuple(
         grid_names[i]), grid_arguments[i]) for i in range(grid_dimension)])
-
     results = {name: res for name, res in results}
+
     # for i in range(grid_dimension):
     #     logger.info(
     #         f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
@@ -356,7 +349,7 @@ def grid_search(callback, *args):
     # convert results into table
     table = []
     for key, value in results.items():
-        entry = [*key, value]
+        entry = [*key, *value]
         table.append(entry)
     table = np.asarray(table, dtype=object)
     return results, table
@@ -367,6 +360,18 @@ def constrainSigma(sigma, psi=0.01):
     s[s < psi] = psi
     sigma = np.dot(U, vcol(s)*U.T)
     return sigma
+
+def calibrateScores(s, L, lambd, prior=0.5):
+    # f(s) = as+b can be interpreted as the llr for the two class hypothesis
+    # class posterior probability: as+b+log(pi/(1-pi)) = as +b'
+    s=vrow(s)
+    import ogc.classifiers.LogisticRegression as LogisticRegression
+    lr = LogisticRegression.LogisticRegression(l=lambd, prior=prior, weighted=True)
+    lr.fit((s, L))
+    alpha = lr.x[0]
+    betafirst = lr.x[1]
+    calibScores = alpha*s+betafirst-np.log(prior/(1-prior))
+    return calibScores
 
 def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:
     l = []
@@ -380,7 +385,20 @@ def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:
             l.append(row)
     return l
 
-
+def bayesErrorPlot(dcf, mindcf, effPriorLogOdds, model, filename: str = None):
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(effPriorLogOdds, dcf, label='act DCF', color='r')
+    plt.plot(effPriorLogOdds, mindcf, label='min DCF', color='b', linestyle="--")
+    plt.xlim([min(effPriorLogOdds), max(effPriorLogOdds)])
+    plt.legend([model + " - act DCF", model+" - min DCF"])
+    plt.xlabel("prior log-odds")
+    plt.ylabel("DCF")
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename)
+    return
     
 
 if __name__ == "__main__":
