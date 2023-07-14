@@ -113,45 +113,55 @@ def main():
 
     use_csv: bool = False
 
-    # filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
-    # if use_csv:
-    #     final_results_mvg = utilities.load_from_csv(filename)
-    # else:
-    #     _, final_results_mvg = utilities.grid_search(
-    #         mvg_callback, priors, mvg_params, [dimred[0]], dataset_types)
-    #     np.savetxt(filename, final_results_mvg, delimiter=";", fmt="%s",
-    #                header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
-    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, "Standard MVG", filename=TABLES_OUTPUT_PATH + "mvg_bayes_error.png")
-    # filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
-    # if use_csv:
-    #     final_results_gmm = utilities.load_from_csv(filename)
-    # else:
-    #     _, final_results_gmm = utilities.grid_search(
-    #         GMM_callback, priors, gmm_dataset, gmm_params, [dimred[0]], components)
-    #     np.savetxt(filename, final_results_gmm, delimiter=";", fmt="%s",
-    #                header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
-    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, "GMM", filename=TABLES_OUTPUT_PATH + "gmm_bayes_error.png")
+    chooser = [False, False, True, True]
+    # chooser = [False, True, False, False]
 
-    # filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
-    # if use_csv:
-    #     final_results_poly = utilities.load_from_csv(filename)
-    # else:
-    #     _, final_results_poly = utilities.grid_search(poly_svm_callback, [options[0]],  priors, [
-    #                                                   dimred[1]], dataset_types, cs, ds, Cs, Ks)
-    #     np.savetxt(filename, final_results_poly, delimiter=";",
-    #                fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
-    # utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, "Polynomial SVM", filename=TABLES_OUTPUT_PATH + "poly_bayes_error.png")
+    if chooser[0]:
+        filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
+        if use_csv:
+            final_results_mvg = utilities.load_from_csv(filename)
+        else:
+            _, final_results_mvg = utilities.grid_search(
+                mvg_callback, priors, mvg_params, [dimred[0]], dataset_types)
+            np.savetxt(filename, final_results_mvg, delimiter=";", fmt="%s",
+                    header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, "Standard MVG", filename=TABLES_OUTPUT_PATH + "mvg_bayes_error.png")
+
+    if chooser[1]:
+        filename = TABLES_OUTPUT_PATH + "logreg_best_calib.csv"
+        if use_csv:
+            final_results_logreg = utilities.load_from_csv(filename)
+        else:
+            _, final_results_logreg = utilities.grid_search(
+                logreg_callback, priors, l, [dimred[1]], dataset_types, weighted, quadratic, logreg_prior)
+            np.savetxt(filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
+                ["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF", "ActDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, "Logistic Regression - Calibrated", filename=TABLES_OUTPUT_PATH + "logreg_bayes_error_calibrated.png")
+
+    if chooser[2]:
+        filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
+        if use_csv:
+            final_results_poly = utilities.load_from_csv(filename)
+        else:
+            _, final_results_poly = utilities.grid_search(poly_svm_callback, [options[0]],  priors, [
+                                                        dimred[1]], dataset_types, cs, ds, Cs, Ks)
+            np.savetxt(filename, final_results_poly, delimiter=";",
+                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, "Polynomial SVM", filename=TABLES_OUTPUT_PATH + "poly_bayes_error.png")
+
+    if chooser[3]:
+        filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
+        if use_csv:
+            final_results_gmm = utilities.load_from_csv(filename)
+        else:
+            _, final_results_gmm = utilities.grid_search(
+                GMM_callback, priors, gmm_dataset, gmm_params, [dimred[0]], components)
+            np.savetxt(filename, final_results_gmm, delimiter=";", fmt="%s",
+                       header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, "GMM", filename=TABLES_OUTPUT_PATH + "gmm_bayes_error.png")
 
 
-    filename = TABLES_OUTPUT_PATH + "logreg_best_calib.csv"
-    if use_csv:
-        final_results_logreg = utilities.load_from_csv(filename)
-    else:
-        _, final_results_logreg = utilities.grid_search(
-            logreg_callback, priors, l, [dimred[1]], dataset_types, weighted, quadratic, logreg_prior)
-        np.savetxt(filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
-            ["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF", "ActDCF"]))
-    utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, "Logistic Regression - Calibrated", filename=TABLES_OUTPUT_PATH + "logreg_bayes_error_calibrated.png")
+
 
 
     # return (final_results_mvg, final_results_logreg, final_results_poly, final_results_gmm)
