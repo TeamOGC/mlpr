@@ -234,7 +234,7 @@ def Ksplit(D, L, K=5, seed=0):
     return folds, labels
 
 
-def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calibrate: bool = False, lambd: float = None):
+def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calibrate: bool = False, lambd: float = None, return_scores: bool = False):
     assert calibrate == False or lambd != None, "Lambda must be specified when calibrating"
     assert K > 1, "K must be > 1"
     folds, labels = Ksplit(D, L, seed=0, K=K)
@@ -258,6 +258,8 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
         scores.append(model.predictAndGetScores(evaluationSet))
     scores = np.hstack(scores)
     orderedLabels = np.hstack(orderedLabels).astype(int)
+    if return_scores:
+        return scores, orderedLabels
     labels = np.hstack(labels)
     to_return = [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
     if act:
@@ -267,6 +269,7 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
         to_return.append(metrics.minimum_detection_costs(calibscores, orderedLabels, prior, 1, 1))
         if act:
             to_return.append(metrics.compute_actual_DCF(calibscores, orderedLabels, prior, 1, 1))
+    return to_return
 
 
 def leave_one_out(n_samples):
