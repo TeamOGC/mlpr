@@ -12,15 +12,20 @@ import logging
 from project import ZNormalization as znorm_cached
 from project import PCA as PCA_Cached
 from pprint import pprint
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 OUTPUT_PATH = ROOT_PATH + "../images/wrap_up/"
 TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/wrap_up/"
+TABLES_OUTPUT_PATH_CAL = ROOT_PATH + "../tables/wrap_up/calibrated/"
 makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
+makedirs(TABLES_OUTPUT_PATH_CAL, exist_ok=True)
+
+CALIBRATE = False
+CAL_LAMBDA = 0.001 if CALIBRATE else None
 
 
 def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
@@ -34,7 +39,7 @@ def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
         DTR = dr.PCA(DTR, dimred)[0]
     model = SVM.PolynomialSVM(c=c, d=d, C=C, epsilon=K**2)
     from ogc.utilities import Kfold
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
@@ -64,7 +69,7 @@ def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
     from ogc.utilities import Kfold
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=True, lambd=0.01)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
@@ -85,7 +90,7 @@ def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
 
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
@@ -113,56 +118,95 @@ def main():
 
     use_csv: bool = False
 
-    # chooser = [False, False, True, True]
-    chooser = [False, True, False, False]
+    # chooser = [False, False, False, True]
+    chooser = [True, True, False, False]
 
     if chooser[0]:
-        filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
+        mvg_filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
+        mvg_model_name = "Standard MVG"
+        mvg_bep_filename = TABLES_OUTPUT_PATH + "mvg_bep.png"
+        if CALIBRATE:
+            mvg_filename = TABLES_OUTPUT_PATH_CAL + "mvg_best_calib.csv"
+            mvg_model_name = "Standard MVG - Calibrated"
+            mvg_bep_filename = TABLES_OUTPUT_PATH_CAL + "mvg_bep_calib.png"
+        
         if use_csv:
-            final_results_mvg = utilities.load_from_csv(filename)
+            final_results_mvg = utilities.load_from_csv(mvg_filename)
         else:
             _, final_results_mvg = utilities.grid_search(
                 mvg_callback, priors, mvg_params, [dimred[0]], dataset_types)
-            np.savetxt(filename, final_results_mvg, delimiter=";", fmt="%s",
+            np.savetxt(mvg_filename, final_results_mvg, delimiter=";", fmt="%s",
                     header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, "Standard MVG", filename=TABLES_OUTPUT_PATH + "mvg_bayes_error.png")
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, mvg_model_name, filename=mvg_bep_filename)
 
     if chooser[1]:
-        filename = TABLES_OUTPUT_PATH + "logreg_best_calib.csv"
+        lr_filename = TABLES_OUTPUT_PATH + "logreg_best.csv"
+        lr_model_name = "Logistic Regression"
+        lr_bep_filename = TABLES_OUTPUT_PATH + "logreg_bep.png"
+        if CALIBRATE:
+            lr_filename = TABLES_OUTPUT_PATH_CAL + "logreg_best_calib.csv"
+            lr_model_name = "Logistic Regression - Calibrated"
+            lr_bep_filename = TABLES_OUTPUT_PATH_CAL + "logreg_bep_calib.png"
         if use_csv:
-            final_results_logreg = utilities.load_from_csv(filename)
+            final_results_logreg = utilities.load_from_csv(lr_filename)
         else:
             _, final_results_logreg = utilities.grid_search(
                 logreg_callback, priors, l, [dimred[1]], dataset_types, weighted, quadratic, logreg_prior)
-            np.savetxt(filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
+            np.savetxt(lr_filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
                 ["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF", "ActDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, "Logistic Regression - Calibrated", filename=TABLES_OUTPUT_PATH + "logreg_bayes_error_calibrated.png")
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, lr_model_name, filename=lr_bep_filename)
 
     if chooser[2]:
-        filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
+        poly_filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
+        poly_model_name = "Polynomial SVM"
+        poly_bep_filename = TABLES_OUTPUT_PATH + "poly_bep.png"
+        if CALIBRATE:
+            poly_filename = TABLES_OUTPUT_PATH_CAL + "poly_svm_best_calib.csv"
+            poly_model_name = "Polynomial SVM - Calibrated"
+            poly_bep_filename = TABLES_OUTPUT_PATH_CAL + "poly_bep_calib.png"
         if use_csv:
-            final_results_poly = utilities.load_from_csv(filename)
+            final_results_poly = utilities.load_from_csv(poly_filename)
         else:
             _, final_results_poly = utilities.grid_search(poly_svm_callback, [options[0]],  priors, [
                                                         dimred[1]], dataset_types, cs, ds, Cs, Ks)
-            np.savetxt(filename, final_results_poly, delimiter=";",
+            np.savetxt(poly_filename, final_results_poly, delimiter=";",
                     fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, "Polynomial SVM", filename=TABLES_OUTPUT_PATH + "poly_bayes_error.png")
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, poly_model_name, filename=poly_bep_filename)
 
     if chooser[3]:
-        filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
+        gmm_filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
+        gmm_model_name = "GMM"
+        gmm_bep_filename = TABLES_OUTPUT_PATH + "gmm_bep.png"
+        if CALIBRATE:
+            gmm_filename = TABLES_OUTPUT_PATH_CAL + "gmm_best_calib.csv"
+            gmm_model_name = "GMM - Calibrated"
+            gmm_bep_filename = TABLES_OUTPUT_PATH_CAL + "gmm_bep_calib.png"
         if use_csv:
-            final_results_gmm = utilities.load_from_csv(filename)
+            final_results_gmm = utilities.load_from_csv(gmm_filename)
         else:
             _, final_results_gmm = utilities.grid_search(
                 GMM_callback, priors, gmm_dataset, gmm_params, [dimred[0]], components)
-            np.savetxt(filename, final_results_gmm, delimiter=";", fmt="%s",
+            np.savetxt(gmm_filename, final_results_gmm, delimiter=";", fmt="%s",
                        header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, "GMM", filename=TABLES_OUTPUT_PATH + "gmm_bayes_error.png")
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, gmm_model_name, filename=gmm_bep_filename)
 
 
 
-
+    if(any(chooser)):
+        c= "".join(['T' if i else 'F' for i in chooser])
+        comparison_filename = TABLES_OUTPUT_PATH + f"comparison-{c}.png"
+        if CALIBRATE:
+            comparison_filename = TABLES_OUTPUT_PATH_CAL + f"comparison_calib-{c}.png"
+        comparison = []
+        if chooser[0]:
+            comparison.append(([float(i[-2]) for i in final_results_mvg], [float(i[-1]) for i in final_results_mvg], mvg_model_name))
+        if chooser[1]:
+            comparison.append(([float(i[-2]) for i in final_results_logreg], [float(i[-1]) for i in final_results_logreg], lr_model_name))
+        if chooser[2]:
+            comparison.append(([float(i[-2]) for i in final_results_poly], [float(i[-1]) for i in final_results_poly], poly_model_name))
+        if chooser[3]:
+            comparison.append(([float(i[-2]) for i in final_results_gmm], [float(i[-1]) for i in final_results_gmm], gmm_model_name))
+        utilities.multiple_bep(effPriorLogOdds, comparison, filename=comparison_filename)
 
     # return (final_results_mvg, final_results_logreg, final_results_poly, final_results_gmm)
 

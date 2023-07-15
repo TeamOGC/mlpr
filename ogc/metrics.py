@@ -38,8 +38,6 @@ def minimum_detection_costs(llr, LTE, pi1, cfn, cfp):
         NDCF.append(normalized_detection_cost_function(uDCF, pi1, cfn, cfp))
 
     index = np.argmin(NDCF)
-    print(sorted_llr[index])
-
     return NDCF[index]
 
 
@@ -50,7 +48,6 @@ def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp):
         LTE = LTE + 1 / 2
     t = -np.log(pi1/(1-pi1))
     predictions = (llr > t).astype(int)
-    print(f"{t=}")
 
     confMatrix = utils.confusionMatrix(predictions, LTE, int(LTE.max()+1))
     uDCF = detection_cost_function(confMatrix, pi1, cfn, cfp)

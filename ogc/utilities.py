@@ -11,7 +11,7 @@ import logging
 import time
 import csv
 from multiprocessing import Pool
-from scipy.optimize import fmin_l_bfgs_b
+import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -236,45 +236,36 @@ def Ksplit(D, L, K=5, seed=0):
 
 def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calibrate: bool = False, lambd: float = None):
     assert calibrate == False or lambd != None, "Lambda must be specified when calibrating"
-    if K > 1:
-        folds, labels = Ksplit(D, L, seed=0, K=K)
-        orderedLabels = []
-        scores = []
-        st = []
-        l2=[]
-        for i in range(K):
-            trainingSet = []
-            labelsOfTrainingSet = []
-            for j in range(K):
-                if j != i:
-                    trainingSet.append(folds[j])
-                    labelsOfTrainingSet.append(labels[j])
-                    l2.append(labels[j])  
-            evaluationSet = folds[i]
-            orderedLabels.append(labels[i])
-            trainingSet = np.hstack(trainingSet)
-            labelsOfTrainingSet = np.hstack(labelsOfTrainingSet)
-            model.fit((trainingSet, labelsOfTrainingSet))
-            scores.append(model.predictAndGetScores(evaluationSet))
-        scores = np.hstack(scores)
-        orderedLabels = np.hstack(orderedLabels).astype(int)
-        labels = np.hstack(labels)
-        if calibrate:
-            # ratio = 0.7
-            # idx = np.random.permutation(scores.shape[0])
-            # scores_70 = scores       [idx[:int(len(scores)*ratio)]]
-            # labels_70 = orderedLabels[idx[:int(len(scores)*ratio)]]
-            # scores_30 = scores[idx[int(len(scores)*ratio):]]
-            # orderedLabels = orderedLabels[idx[int(len(scores)*ratio):]]
-            calibscores = calibrateScores(scores, orderedLabels, scores, lambd).flatten()
-            scores = calibscores
-        if act:
-            return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1), metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1)]
-        else:
-            return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
+    assert K > 1, "K must be > 1"
+    folds, labels = Ksplit(D, L, seed=0, K=K)
+    orderedLabels = []
+    scores = []
+    st = []
+    l2=[]
+    for i in range(K):
+        trainingSet = []
+        labelsOfTrainingSet = []
+        for j in range(K):
+            if j != i:
+                trainingSet.append(folds[j])
+                labelsOfTrainingSet.append(labels[j])
+                l2.append(labels[j])  
+        evaluationSet = folds[i]
+        orderedLabels.append(labels[i])
+        trainingSet = np.hstack(trainingSet)
+        labelsOfTrainingSet = np.hstack(labelsOfTrainingSet)
+        model.fit((trainingSet, labelsOfTrainingSet))
+        scores.append(model.predictAndGetScores(evaluationSet))
+    scores = np.hstack(scores)
+    orderedLabels = np.hstack(orderedLabels).astype(int)
+    labels = np.hstack(labels)
+    if calibrate:
+        calibscores = calibrateScores(scores, orderedLabels, scores, lambd).flatten()
+        scores = calibscores
+    if act:
+        return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1), metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1)]
     else:
-        print("K cannot be <=1")
-    return
+        return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
 
 
 def leave_one_out(n_samples):
@@ -283,14 +274,7 @@ def leave_one_out(n_samples):
 
 def confusionMatrix(predictedLabels: npt.NDArray, actualLabels: npt.NDArray, K: int):
     assert predictedLabels.size == actualLabels.size, f"Predicted and actual labels must have the same size ({predictedLabels.shape} - {actualLabels.shape})"
-    # Initialize matrix of K x K zeros
-    matrix = np.zeros((K, K)).astype(int)
-    # We're computing the confusion
-    # matrix which "counts" how many times we get prediction i when the actual
-    # label is j.
-    for i in range(actualLabels.size):
-        matrix[int(predictedLabels[i]), int(actualLabels[i])] += 1
-    return matrix
+    return np.bincount(predictedLabels.astype(int) * K + actualLabels.astype(int), minlength=K*K).reshape(K, K)
 
 def ZNormalization(D, mean=None, standardDeviation=None):
     if mean is None and standardDeviation is None:
@@ -328,12 +312,11 @@ def grid_search(callback, *args):
                 assert(dimred in [11, 10])
                 assert(mvg_params in [{}, {"naive": True}])
     """
-    for arg in args:
-        assert isinstance(arg, list), "All arguments must be lists"
-
     grid_dimension = 1
     for arg in args:
+        assert isinstance(arg, list), "All arguments must be lists"
         grid_dimension *= len(arg)
+
     logger.debug(f"Grid dimension: {grid_dimension}")
 
     args_names = [[it[0] for it in arg] for arg in args]
@@ -398,7 +381,6 @@ def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:
     return l
 
 def bayesErrorPlot(dcf, mindcf, effPriorLogOdds, model, filename: str = None):
-    import matplotlib.pyplot as plt
     plt.figure()
     plt.plot(effPriorLogOdds, dcf, label='act DCF', color='r')
     plt.plot(effPriorLogOdds, mindcf, label='min DCF', color='b', linestyle="--")
@@ -412,6 +394,26 @@ def bayesErrorPlot(dcf, mindcf, effPriorLogOdds, model, filename: str = None):
         plt.savefig(filename)
     return
     
+def multiple_bep(effPriorLogOdds, args, filename: str = None):
+    # Each arg must contain (minDCF, actDCF, model_name)
+    colors = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
+    plt.figure()
+    legend = []
+    for i, arg in enumerate(args):
+        minDCF, actDCF, model_name = arg
+        plt.plot(effPriorLogOdds, minDCF, label=model_name, color=colors[i], linestyle="--")
+        legend.append(model_name + " - min DCF")
+        plt.plot(effPriorLogOdds, actDCF, label=model_name, color=colors[i])
+        legend.append(model_name + " - act DCF")
+    plt.legend(legend)
+    plt.xlim([min(effPriorLogOdds), max(effPriorLogOdds)])
+    
+
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename)
+    return
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
