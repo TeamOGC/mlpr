@@ -130,7 +130,7 @@ def main():
     # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
 
-    use_csv: bool = False
+    use_csv: bool = True
 
     # MVG, LogReg, PolySVM, GMM, RBF
     chooser = [True, True, False, False, True]
@@ -147,9 +147,9 @@ def main():
             _, final_results_mvg = utilities.grid_search(mvg_callback, priors)
             np.savetxt(mvg_filename, final_results_mvg, delimiter=";", fmt="%s",
                        header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
-        utilities.bayesErrorPlot([float(i[2]) for i in final_results_mvg], [float(i[1])
+        utilities.bayesErrorPlot([float(i[1]) for i in final_results_mvg], [ float(i[2])
                                  for i in final_results_mvg], effPriorLogOdds, mvg_model_name.replace("?", ""), filename=TABLES_OUTPUT_PATH + mvg_bep_filename)
-        utilities.bayesErrorPlot([float(i[4]) for i in final_results_mvg], [float(i[3])
+        utilities.bayesErrorPlot([float(i[3]) for i in final_results_mvg], [float(i[4])
                                                                             for i in final_results_mvg], effPriorLogOdds, mvg_model_name.replace("?", "- Calibrated"), filename=TABLES_OUTPUT_PATH_CAL + mvg_bep_filename)
 
     if chooser[1]:
@@ -163,9 +163,9 @@ def main():
                 logreg_callback, priors)
             np.savetxt(lr_filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
                 ["Prior", "MinDCF", "ActDCF", "CalMinDCF", "CalActDCF", "TPR", "FPR", "CalTPR", "CalFPR"]))
-        utilities.bayesErrorPlot([float(i[2]) for i in final_results_logreg], [float(i[1])
+        utilities.bayesErrorPlot([float(i[1]) for i in final_results_logreg], [ float(i[2])
                                  for i in final_results_logreg], effPriorLogOdds, lr_model_name.replace("?", ""), filename=TABLES_OUTPUT_PATH + lr_bep_filename)
-        utilities.bayesErrorPlot([float(i[4]) for i in final_results_logreg], [float(i[3])
+        utilities.bayesErrorPlot([float(i[3]) for i in final_results_logreg], [float(i[4])
                                                                                for i in final_results_logreg], effPriorLogOdds, lr_model_name.replace("?", "- Calibrated"), filename=TABLES_OUTPUT_PATH_CAL + lr_bep_filename)
 
     if chooser[2]:
@@ -180,9 +180,9 @@ def main():
                 poly_svm_callback, priors)
             np.savetxt(poly_filename, final_results_poly, delimiter=";",
                        fmt="%s", header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
-        utilities.bayesErrorPlot([float(i[2]) for i in final_results_poly], [float(i[1])
+        utilities.bayesErrorPlot([float(i[1]) for i in final_results_poly], [ float(i[2])
                                  for i in final_results_poly], effPriorLogOdds, poly_model_name.replace("?", ""), filename=TABLES_OUTPUT_PATH + poly_bep_filename)
-        utilities.bayesErrorPlot([float(i[4]) for i in final_results_poly], [float(i[3])
+        utilities.bayesErrorPlot([float(i[3]) for i in final_results_poly], [float(i[4])
                                                                              for i in final_results_poly], effPriorLogOdds, poly_model_name.replace("?", "- Calibrated"), filename=TABLES_OUTPUT_PATH_CAL + poly_bep_filename)
 
     if chooser[3]:
@@ -195,7 +195,7 @@ def main():
             _, final_results_gmm = utilities.grid_search(GMM_callback, priors)
             np.savetxt(gmm_filename, final_results_gmm, delimiter=";", fmt="%s",
                        header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
-        utilities.bayesErrorPlot([float(i[2]) for i in final_results_gmm], [float(i[1])
+        utilities.bayesErrorPlot([float(i[1]) for i in final_results_gmm], [ float(i[2])
                                  for i in final_results_gmm], effPriorLogOdds, gmm_model_name.replace("?", ""), filename=TABLES_OUTPUT_PATH + gmm_bep_filename)
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_gmm], [float(i[3])
                                                                             for i in final_results_gmm], effPriorLogOdds, gmm_model_name.replace("?", "- Calibrated"), filename=TABLES_OUTPUT_PATH_CAL + gmm_bep_filename)
@@ -211,9 +211,9 @@ def main():
                 rbf_svm_callback, priors)
             np.savetxt(rbf_filename, final_results_rbf, delimiter=";", fmt="%s",
                        header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
-        utilities.bayesErrorPlot([float(i[2]) for i in final_results_rbf], [float(i[1])
+        utilities.bayesErrorPlot([float(i[1]) for i in final_results_rbf], [ float(i[2])
                                  for i in final_results_rbf], effPriorLogOdds, rbf_model_name.replace("?", ""), filename=TABLES_OUTPUT_PATH + rbf_bep_filename)
-        utilities.bayesErrorPlot([float(i[4]) for i in final_results_rbf], [float(i[3])
+        utilities.bayesErrorPlot([float(i[3]) for i in final_results_rbf], [float(i[4])
                                                                             for i in final_results_rbf], effPriorLogOdds, rbf_model_name.replace("?", "- Calibrated"), filename=TABLES_OUTPUT_PATH_CAL + rbf_bep_filename)
 
     if (len([c for c in chooser if c]) > 1):
@@ -225,47 +225,47 @@ def main():
         fpr_list = []
         fpr_list_calib = []
         if chooser[0]:
-            comparison.append(([float(i[2]) for i in final_results_mvg], [float(
-                i[1]) for i in final_results_mvg], mvg_model_name.replace("?", "")))
-            comparison_calib.append(([float(i[4]) for i in final_results_mvg],
-                                     [float(i[3]) for i in final_results_mvg], mvg_model_name.replace("?", "- Calibrated")))
+            comparison.append(([float(i[1]) for i in final_results_mvg], [float(
+                i[2]) for i in final_results_mvg], mvg_model_name.replace("?", "")))
+            comparison_calib.append(([float(i[3]) for i in final_results_mvg],
+                                     [float(i[4]) for i in final_results_mvg], mvg_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_mvg], [float(
                 i[6]) for i in final_results_mvg], mvg_model_name.replace("?", "")))
             fpr_list_calib.append(([float(i[7]) for i in final_results_mvg], [float(
                 i[8]) for i in final_results_mvg], mvg_model_name.replace("?", "- Calibrated")))
 
         if chooser[1]:
-            comparison.append(([float(i[2]) for i in final_results_logreg], [
-                              float(i[1]) for i in final_results_logreg], lr_model_name))
-            comparison_calib.append(([float(i[4]) for i in final_results_logreg],
-                                     [float(i[3]) for i in final_results_logreg], lr_model_name.replace("?", "- Calibrated")))
+            comparison.append(([float(i[1]) for i in final_results_logreg], [
+                               float(i[2]) for i in final_results_logreg], lr_model_name))
+            comparison_calib.append(([float(i[3]) for i in final_results_logreg],
+                                     [float(i[4]) for i in final_results_logreg], lr_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_logreg], [float(
                 i[6]) for i in final_results_logreg], lr_model_name.replace("?", "")))
             fpr_list_calib.append(([float(i[7]) for i in final_results_logreg], [float(
                 i[8]) for i in final_results_logreg], lr_model_name.replace("?", "- Calibrated")))
         if chooser[2]:
-            comparison.append(([float(i[2]) for i in final_results_poly], [
-                              float(i[1]) for i in final_results_poly], poly_model_name))
-            comparison_calib.append(([float(i[4]) for i in final_results_poly],
-                                     [float(i[3]) for i in final_results_poly], poly_model_name.replace("?", "- Calibrated")))
+            comparison.append(([float(i[1]) for i in final_results_poly], [
+                               float(i[2]) for i in final_results_poly], poly_model_name))
+            comparison_calib.append(([float(i[3]) for i in final_results_poly],
+                                     [float(i[4]) for i in final_results_poly], poly_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_poly], [float(
                 i[6]) for i in final_results_poly], poly_model_name.replace("?", "")))
             fpr_list_calib.append(([float(i[7]) for i in final_results_poly], [float(
                 i[8]) for i in final_results_poly], poly_model_name.replace("?", "- Calibrated")))
         if chooser[3]:
-            comparison.append(([float(i[2]) for i in final_results_gmm], [
-                              float(i[1]) for i in final_results_gmm], gmm_model_name))
-            comparison_calib.append(([float(i[4]) for i in final_results_gmm],
-                                     [float(i[3]) for i in final_results_gmm], gmm_model_name.replace("?", "- Calibrated")))
+            comparison.append(([float(i[1]) for i in final_results_gmm], [
+                               float(i[2]) for i in final_results_gmm], gmm_model_name))
+            comparison_calib.append(([float(i[3]) for i in final_results_gmm],
+                                     [float(i[4]) for i in final_results_gmm], gmm_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_gmm], [float(
                 i[6]) for i in final_results_gmm], gmm_model_name.replace("?", "")))
             fpr_list_calib.append(([float(i[7]) for i in final_results_gmm], [float(
                 i[8]) for i in final_results_gmm], gmm_model_name.replace("?", "- Calibrated")))
         if chooser[4]:
-            comparison.append(([float(i[2]) for i in final_results_rbf], [
-                              float(i[1]) for i in final_results_rbf], rbf_model_name))
-            comparison_calib.append(([float(i[4]) for i in final_results_rbf],
-                                     [float(i[3]) for i in final_results_rbf], rbf_model_name.replace("?", "- Calibrated")))
+            comparison.append(([float(i[1]) for i in final_results_rbf], [
+                               float(i[2]) for i in final_results_rbf], rbf_model_name))
+            comparison_calib.append(([float(i[3]) for i in final_results_rbf],
+                                     [float(i[4]) for i in final_results_rbf], rbf_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_rbf], [float(
                 i[6]) for i in final_results_rbf], rbf_model_name.replace("?", "")))
             fpr_list_calib.append(([float(i[7]) for i in final_results_rbf], [float(
