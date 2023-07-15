@@ -267,6 +267,7 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
         to_return.append(metrics.minimum_detection_costs(calibscores, orderedLabels, prior, 1, 1))
         if act:
             to_return.append(metrics.compute_actual_DCF(calibscores, orderedLabels, prior, 1, 1))
+    return to_return
 
 
 def leave_one_out(n_samples):
