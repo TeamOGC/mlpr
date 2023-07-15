@@ -24,8 +24,8 @@ makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH_CAL, exist_ok=True)
 
-CALIBRATE = False
-CAL_LAMBDA = 0.001 if CALIBRATE else None
+CALIBRATE = True
+CAL_LAMBDA = 0.0001 if CALIBRATE else None
 
 
 def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
