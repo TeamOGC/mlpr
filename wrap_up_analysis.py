@@ -24,7 +24,7 @@ makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH_CAL, exist_ok=True)
 
-CALIBRATE = True
+CALIBRATE = False
 CAL_LAMBDA = 0.0001 if CALIBRATE else None
 
 
@@ -108,11 +108,11 @@ def rbf_svm_callback(prior):
 
 
 def main():
-    numberOfPoints = 18
-    effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
-    effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
-    # effPriors = [0.1, 0.5, 0.9]
-    # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
+    # numberOfPoints = 18
+    # effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
+    # effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
+    effPriors = [0.1, 0.5, 0.9]
+    effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     options = [("Polynomial", "polynomial")]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
     dataset_types = [("RAW", None)]

@@ -259,13 +259,14 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
     scores = np.hstack(scores)
     orderedLabels = np.hstack(orderedLabels).astype(int)
     labels = np.hstack(labels)
+    to_return = [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
+    if act:
+        to_return.append(metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1))
     if calibrate:
         calibscores = calibrateScores(scores, orderedLabels, scores, lambd).flatten()
-        scores = calibscores
-    if act:
-        return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1), metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1)]
-    else:
-        return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1)]
+        to_return.append(metrics.minimum_detection_costs(calibscores, orderedLabels, prior, 1, 1))
+        if act:
+            to_return.append(metrics.compute_actual_DCF(calibscores, orderedLabels, prior, 1, 1))
 
 
 def leave_one_out(n_samples):
@@ -409,6 +410,31 @@ def multiple_bep(effPriorLogOdds, args, filename: str = None):
     plt.xlim([min(effPriorLogOdds), max(effPriorLogOdds)])
     
 
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename)
+    return
+
+def plot_roc(args, filename: str = None):
+    # Each arg must contain (minDCF, actDCF, model_name)
+    colors = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
+    plt.figure()
+    legend = []
+    for i, arg in enumerate(args):
+        tpr, fnr, model_name = arg
+        tpr = [0] + tpr + [1]
+        fnr = [0] + fnr + [1]
+        plt.plot(fnr, tpr, label=model_name, color=colors[i])
+        legend.append(model_name)
+    rng_guess = np.linspace(0, 1, 100)
+    plt.plot(rng_guess, rng_guess, label="Random Guess", color='k', linestyle="--")
+    legend.append("Random Guess")
+    plt.legend(legend)
+    plt.xlim([-0.1, 1.1])
+    plt.ylim([-0.1, 1.1])
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
     if filename is None:
         plt.show()
     else:

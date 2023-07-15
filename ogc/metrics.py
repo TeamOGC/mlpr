@@ -41,7 +41,7 @@ def minimum_detection_costs(llr, LTE, pi1, cfn, cfp):
     return NDCF[index]
 
 
-def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp):
+def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp, retRates: bool =False):
 
     if LTE.min() != 0:
         print("LTE must start from 0")
@@ -53,5 +53,10 @@ def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp):
     uDCF = detection_cost_function(confMatrix, pi1, cfn, cfp)
 
     NDCF = (normalized_detection_cost_function(uDCF, pi1, cfn, cfp))
+    if retRates:
+        # calculate fnr and fnp with confMatrix
+        TPR = confMatrix[0][0]/(confMatrix[0][0]+confMatrix[0][1])
+        FPR = confMatrix[1][0]/(confMatrix[0][0]+confMatrix[1][0])
+        return NDCF, TPR, FPR
 
     return NDCF
