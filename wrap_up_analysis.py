@@ -39,7 +39,8 @@ def poly_svm_callback(option, prior, dimred, dataset_type, c, d, C, K):
         DTR = dr.PCA(DTR, dimred)[0]
     model = SVM.PolynomialSVM(c=c, d=d, C=C, epsilon=K**2)
     from ogc.utilities import Kfold
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True,
+                  calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
@@ -69,7 +70,8 @@ def logreg_callback(prior, l, dimred, dataset_type, weighted, quadratic, logreg_
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
     from ogc.utilities import Kfold
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True,
+                  calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
@@ -90,15 +92,27 @@ def GMM_callback(prior, dataset_type, mvg_param, dimred, components):
         from ogc import dimensionality_reduction as dr
         DTR = dr.PCA(DTR, dimred)[0]
 
-    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
+    kfold = Kfold(DTR, LTR, model, 5, prior=prior, act=True,
+                  calibrate=CALIBRATE, lambd=CAL_LAMBDA)
     return kfold
 
 
+def rbf_svm_callback(prior):
+    from ogc.utilities import Kfold
+    from ogc import dimensionality_reduction as dr
+
+    DTR, LTR = TRAINING_DATA()
+    DTR = dr.PCA(DTR, 5)[0]
+    model = SVM.RBFSVM(gamma=10e-3, C=10, K=1)
+    return Kfold(DTR, LTR, model, 5, prior=prior, act=True, calibrate=CALIBRATE, lambd=CAL_LAMBDA)
+
+
 def main():
-    numberOfPoints=18
+    numberOfPoints = 18
     effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
     effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
-
+    # effPriors = [0.1, 0.5, 0.9]
+    # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     options = [("Polynomial", "polynomial")]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
     dataset_types = [("RAW", None)]
@@ -118,8 +132,8 @@ def main():
 
     use_csv: bool = False
 
-    # chooser = [False, False, False, True]
-    chooser = [True, True, False, False]
+    chooser = [False, False, False, False, True]
+    # chooser = [True, True, False, False, True]
 
     if chooser[0]:
         mvg_filename = TABLES_OUTPUT_PATH + "mvg_best.csv"
@@ -129,15 +143,16 @@ def main():
             mvg_filename = TABLES_OUTPUT_PATH_CAL + "mvg_best_calib.csv"
             mvg_model_name = "Standard MVG - Calibrated"
             mvg_bep_filename = TABLES_OUTPUT_PATH_CAL + "mvg_bep_calib.png"
-        
+
         if use_csv:
             final_results_mvg = utilities.load_from_csv(mvg_filename)
         else:
             _, final_results_mvg = utilities.grid_search(
                 mvg_callback, priors, mvg_params, [dimred[0]], dataset_types)
             np.savetxt(mvg_filename, final_results_mvg, delimiter=";", fmt="%s",
-                    header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2]) for i in final_results_mvg], effPriorLogOdds, mvg_model_name, filename=mvg_bep_filename)
+                       header=";".join(["Prior", "MVG", "PCA", "Dataset", "minDCF", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_mvg], [float(i[-2])
+                                 for i in final_results_mvg], effPriorLogOdds, mvg_model_name, filename=mvg_bep_filename)
 
     if chooser[1]:
         lr_filename = TABLES_OUTPUT_PATH + "logreg_best.csv"
@@ -154,7 +169,8 @@ def main():
                 logreg_callback, priors, l, [dimred[1]], dataset_types, weighted, quadratic, logreg_prior)
             np.savetxt(lr_filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
                 ["Prior", "Lambda", "PCA", "Dataset", "Weighted", "Type", "LogregPrior", "MinDCF", "ActDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2]) for i in final_results_logreg], effPriorLogOdds, lr_model_name, filename=lr_bep_filename)
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_logreg], [float(i[-2])
+                                 for i in final_results_logreg], effPriorLogOdds, lr_model_name, filename=lr_bep_filename)
 
     if chooser[2]:
         poly_filename = TABLES_OUTPUT_PATH + "poly_svm_best.csv"
@@ -168,10 +184,11 @@ def main():
             final_results_poly = utilities.load_from_csv(poly_filename)
         else:
             _, final_results_poly = utilities.grid_search(poly_svm_callback, [options[0]],  priors, [
-                                                        dimred[1]], dataset_types, cs, ds, Cs, Ks)
+                dimred[1]], dataset_types, cs, ds, Cs, Ks)
             np.savetxt(poly_filename, final_results_poly, delimiter=";",
-                    fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2]) for i in final_results_poly], effPriorLogOdds, poly_model_name, filename=poly_bep_filename)
+                       fmt="%s", header=";".join(["Kernel", "Prior", "PCA", "Dataset", "c", "d", "C", "Epsilon", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_poly], [float(i[-2])
+                                 for i in final_results_poly], effPriorLogOdds, poly_model_name, filename=poly_bep_filename)
 
     if chooser[3]:
         gmm_filename = TABLES_OUTPUT_PATH + "gmm_best.csv"
@@ -188,32 +205,60 @@ def main():
                 GMM_callback, priors, gmm_dataset, gmm_params, [dimred[0]], components)
             np.savetxt(gmm_filename, final_results_gmm, delimiter=";", fmt="%s",
                        header=";".join(["Prior", "Dataset", "GMM", "PCA", "actDCF"]))
-        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2]) for i in final_results_gmm], effPriorLogOdds, gmm_model_name, filename=gmm_bep_filename)
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_gmm], [float(i[-2])
+                                 for i in final_results_gmm], effPriorLogOdds, gmm_model_name, filename=gmm_bep_filename)
 
+    if chooser[4]:
+        # rbf
+        rbf_filename = TABLES_OUTPUT_PATH + "rbf_svm_best.csv"
+        rbf_model_name = "RBF SVM"
+        rbf_bep_filename = TABLES_OUTPUT_PATH + "rbf_bep.png"
+        if CALIBRATE:
+            rbf_filename = TABLES_OUTPUT_PATH_CAL + "rbf_svm_best_calib.csv"
+            rbf_model_name = "RBF SVM - Calibrated"
+            rbf_bep_filename = TABLES_OUTPUT_PATH_CAL + "rbf_bep_calib.png"
+        if use_csv:
+            final_results_rbf = utilities.load_from_csv(rbf_filename)
+        else:
+            _, final_results_rbf = utilities.grid_search(
+                rbf_svm_callback, priors)
+            np.savetxt(rbf_filename, final_results_rbf, delimiter=";", fmt="%s",
+                       header=";".join(["Prior", "minDCF", "actDCF"]))
+        utilities.bayesErrorPlot([float(i[-1]) for i in final_results_rbf], [float(i[-2])
+                                 for i in final_results_rbf], effPriorLogOdds, rbf_model_name, filename=rbf_bep_filename)
 
-
-    if(any(chooser)):
-        c= "".join(['T' if i else 'F' for i in chooser])
+    if(len([c for c in chooser if c]) > 1):
+        c = "".join(['T' if i else 'F' for i in chooser])
         comparison_filename = TABLES_OUTPUT_PATH + f"comparison-{c}.png"
         if CALIBRATE:
-            comparison_filename = TABLES_OUTPUT_PATH_CAL + f"comparison_calib-{c}.png"
+            comparison_filename = TABLES_OUTPUT_PATH_CAL + \
+                f"comparison_calib-{c}.png"
         comparison = []
         if chooser[0]:
-            comparison.append(([float(i[-2]) for i in final_results_mvg], [float(i[-1]) for i in final_results_mvg], mvg_model_name))
+            comparison.append(([float(i[-2]) for i in final_results_mvg],
+                              [float(i[-1]) for i in final_results_mvg], mvg_model_name))
         if chooser[1]:
-            comparison.append(([float(i[-2]) for i in final_results_logreg], [float(i[-1]) for i in final_results_logreg], lr_model_name))
+            comparison.append(([float(i[-2]) for i in final_results_logreg],
+                              [float(i[-1]) for i in final_results_logreg], lr_model_name))
         if chooser[2]:
-            comparison.append(([float(i[-2]) for i in final_results_poly], [float(i[-1]) for i in final_results_poly], poly_model_name))
+            comparison.append(([float(i[-2]) for i in final_results_poly],
+                              [float(i[-1]) for i in final_results_poly], poly_model_name))
         if chooser[3]:
-            comparison.append(([float(i[-2]) for i in final_results_gmm], [float(i[-1]) for i in final_results_gmm], gmm_model_name))
-        utilities.multiple_bep(effPriorLogOdds, comparison, filename=comparison_filename)
+            comparison.append(([float(i[-2]) for i in final_results_gmm],
+                              [float(i[-1]) for i in final_results_gmm], gmm_model_name))
+        if chooser[4]:
+            comparison.append(([float(i[-2]) for i in final_results_rbf],
+                              [float(i[-1]) for i in final_results_rbf], rbf_model_name))
+        utilities.multiple_bep(effPriorLogOdds, comparison,
+                               filename=comparison_filename)
 
     # return (final_results_mvg, final_results_logreg, final_results_poly, final_results_gmm)
 
+
 if __name__ == "__main__":
     import time
+    print("---- Calibration: ", CALIBRATE)
     start = time.time()
     main()
-    
 
     print(f"Time elapsed: {time.time() - start} seconds")
