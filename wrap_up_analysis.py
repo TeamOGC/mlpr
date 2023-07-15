@@ -130,10 +130,10 @@ def main():
     # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
 
-    use_csv: bool = True
+    use_csv: bool = False
 
     # MVG, LogReg, PolySVM, GMM, RBF
-    chooser = [True, True, False, False, True]
+    chooser = [False, False, True, False, False]
     # chooser = [True, True, False, False, True]
 
     if chooser[0]:

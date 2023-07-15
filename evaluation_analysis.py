@@ -143,7 +143,7 @@ def main():
     # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
 
-    use_csv: bool = False
+    use_csv: bool = True
 
     chooser = [True, True, True, True, True]
     # chooser = [True, True, False, False, True]
@@ -247,7 +247,7 @@ def main():
 
         if chooser[1]:
             comparison.append(([float(i[2]) for i in final_results_logreg], [
-                              float(i[1]) for i in final_results_logreg], lr_model_name))
+                              float(i[1]) for i in final_results_logreg], lr_model_name.replace("?", "")))
             comparison_calib.append(([float(i[4]) for i in final_results_logreg],
                                      [float(i[3]) for i in final_results_logreg], lr_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_logreg], [float(
@@ -256,7 +256,7 @@ def main():
                 i[8]) for i in final_results_logreg], lr_model_name.replace("?", "- Calibrated")))
         if chooser[2]:
             comparison.append(([float(i[2]) for i in final_results_poly], [
-                              float(i[1]) for i in final_results_poly], poly_model_name))
+                              float(i[1]) for i in final_results_poly], poly_model_name.replace("?", "")))
             comparison_calib.append(([float(i[4]) for i in final_results_poly],
                                      [float(i[3]) for i in final_results_poly], poly_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_poly], [float(
@@ -265,7 +265,7 @@ def main():
                 i[8]) for i in final_results_poly], poly_model_name.replace("?", "- Calibrated")))
         if chooser[3]:
             comparison.append(([float(i[2]) for i in final_results_gmm], [
-                              float(i[1]) for i in final_results_gmm], gmm_model_name))
+                              float(i[1]) for i in final_results_gmm], gmm_model_name.replace("?", "")))
             comparison_calib.append(([float(i[4]) for i in final_results_gmm],
                                      [float(i[3]) for i in final_results_gmm], gmm_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_gmm], [float(
@@ -274,7 +274,7 @@ def main():
                 i[8]) for i in final_results_gmm], gmm_model_name.replace("?", "- Calibrated")))
         if chooser[4]:
             comparison.append(([float(i[2]) for i in final_results_rbf], [
-                              float(i[1]) for i in final_results_rbf], rbf_model_name))
+                              float(i[1]) for i in final_results_rbf], rbf_model_name.replace("?", "")))
             comparison_calib.append(([float(i[4]) for i in final_results_rbf],
                                      [float(i[3]) for i in final_results_rbf], rbf_model_name.replace("?", "- Calibrated")))
             fpr_list.append(([float(i[5]) for i in final_results_rbf], [float(
