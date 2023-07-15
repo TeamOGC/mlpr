@@ -132,7 +132,7 @@ def main():
 
     use_csv: bool = False
 
-    chooser = [True, True, False, False, False]
+    chooser = [True, True, True, True, True]
     # chooser = [True, True, False, False, True]
 
     if chooser[0]:
