@@ -113,8 +113,8 @@ def main():
 
     use_csv: bool = False
 
-    chooser = [False, False, True, True]
-    # chooser = [False, True, False, False]
+    # chooser = [False, False, True, True]
+    chooser = [False, True, False, False]
 
     if chooser[0]:
         filename = TABLES_OUTPUT_PATH + "mvg_best.csv"

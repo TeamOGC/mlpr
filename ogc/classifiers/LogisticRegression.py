@@ -96,7 +96,7 @@ def weighted_binary_logreg_obj_wrapper(DTR: npt.NDArray, LTR: npt.NDArray, l: fl
         b = v[-1]
         reg = 0.5 * l * np.linalg.norm(w) ** 2
         s = (np.dot(w.T, DTR) + b).ravel()
-        nt = DTR[:, LTR == 0].shape[1]
+        nt = DTR[:, LTR == 1].shape[1]
         avg_risk_0 = (np.logaddexp(0, -s[LTR == 0] * Z[LTR == 0])).sum()
         avg_risk_1 = (np.logaddexp(0, -s[LTR == 1] * Z[LTR == 1])).sum()
         return reg + (pi / nt) * avg_risk_1 + (1-pi) / (DTR.shape[1]-nt) * avg_risk_0

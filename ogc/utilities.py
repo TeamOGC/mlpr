@@ -11,6 +11,7 @@ import logging
 import time
 import csv
 from multiprocessing import Pool
+from scipy.optimize import fmin_l_bfgs_b
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -239,6 +240,8 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
         folds, labels = Ksplit(D, L, seed=0, K=K)
         orderedLabels = []
         scores = []
+        st = []
+        l2=[]
         for i in range(K):
             trainingSet = []
             labelsOfTrainingSet = []
@@ -246,6 +249,7 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
                 if j != i:
                     trainingSet.append(folds[j])
                     labelsOfTrainingSet.append(labels[j])
+                    l2.append(labels[j])  
             evaluationSet = folds[i]
             orderedLabels.append(labels[i])
             trainingSet = np.hstack(trainingSet)
@@ -256,7 +260,14 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
         orderedLabels = np.hstack(orderedLabels).astype(int)
         labels = np.hstack(labels)
         if calibrate:
-            scores = calibrateScores(scores, orderedLabels, lambd).flatten()
+            # ratio = 0.7
+            # idx = np.random.permutation(scores.shape[0])
+            # scores_70 = scores       [idx[:int(len(scores)*ratio)]]
+            # labels_70 = orderedLabels[idx[:int(len(scores)*ratio)]]
+            # scores_30 = scores[idx[int(len(scores)*ratio):]]
+            # orderedLabels = orderedLabels[idx[int(len(scores)*ratio):]]
+            calibscores = calibrateScores(scores, orderedLabels, scores, lambd).flatten()
+            scores = calibscores
         if act:
             return [metrics.minimum_detection_costs(scores, orderedLabels, prior, 1, 1), metrics.compute_actual_DCF(scores, orderedLabels, prior, 1, 1)]
         else:
@@ -267,11 +278,11 @@ def Kfold(D, L, model: "BaseClassifier", K=5, prior=0.5, act:bool = False, calib
 
 
 def leave_one_out(n_samples):
-    return KFold(n_samples, n_samples)
+    return Kfold(n_samples, n_samples)
 
 
 def confusionMatrix(predictedLabels: npt.NDArray, actualLabels: npt.NDArray, K: int):
-    assert predictedLabels.size == actualLabels.size, "Predicted and actual labels must have the same size"
+    assert predictedLabels.size == actualLabels.size, f"Predicted and actual labels must have the same size ({predictedLabels.shape} - {actualLabels.shape})"
     # Initialize matrix of K x K zeros
     matrix = np.zeros((K, K)).astype(int)
     # We're computing the confusion
@@ -332,20 +343,23 @@ def grid_search(callback, *args):
     grid_arguments = np.array(np.meshgrid(
         *args_values)).T.reshape(-1, len(args))
 
+    multiprocessing = True
     # results = {}
-    pool = Pool(processes=None)  # Specify None to use all available CPUs
-    results = pool.starmap(callback_wrapper, [(callback, f"{i+1}/{grid_dimension}", tuple(
-        grid_names[i]), grid_arguments[i]) for i in range(grid_dimension)])
-    results = {name: res for name, res in results}
-
-    # for i in range(grid_dimension):
-    #     logger.info(
-    #         f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
-    #     start = time.time()
-    #     res = callback(*grid_arguments[i])
-    #     logger.debug(f"Iteration {i+1} took {time.time() - start}s")
-    #     logger.info(f"Result: {res}")
-    #     results[tuple(grid_names[i])] = res
+    if multiprocessing:
+        pool = Pool(processes=None)  # Specify None to use all available CPUs
+        results = pool.starmap(callback_wrapper, [(callback, f"{i+1}/{grid_dimension}", tuple(
+            grid_names[i]), grid_arguments[i]) for i in range(grid_dimension)])
+        results = {name: res for name, res in results}
+    else:
+        results = {}
+        for i in range(grid_dimension):
+            logger.info(
+                f"Grid search iteration {i+1}/{grid_dimension} {grid_names[i]}")
+            start = time.time()
+            res = callback(*grid_arguments[i])
+            logger.debug(f"Iteration {i+1} took {time.time() - start}s")
+            logger.info(f"Result: {res}")
+            results[tuple(grid_names[i])] = res
     # convert results into table
     table = []
     for key, value in results.items():
@@ -361,16 +375,14 @@ def constrainSigma(sigma, psi=0.01):
     sigma = np.dot(U, vcol(s)*U.T)
     return sigma
 
-def calibrateScores(s, L, lambd, prior=0.5):
+def calibrateScores(st, L, se, lambd, prior=0.5):
     # f(s) = as+b can be interpreted as the llr for the two class hypothesis
     # class posterior probability: as+b+log(pi/(1-pi)) = as +b'
-    s=vrow(s)
+    st=vrow(st)
     import ogc.classifiers.LogisticRegression as LogisticRegression
     lr = LogisticRegression.LogisticRegression(l=lambd, prior=prior, weighted=True)
-    lr.fit((s, L))
-    alpha = lr.x[0]
-    betafirst = lr.x[1]
-    calibScores = alpha*s+betafirst-np.log(prior/(1-prior))
+    lr.fit((st, L))
+    calibScores = lr.predictAndGetScores(vrow(se)) - np.log(prior/(1-prior))
     return calibScores
 
 def load_from_csv(filename, skip_headers: bool = True) -> list[dict[str, str]]:

@@ -1,0 +1,19 @@
+# Prior;Lambda;PCA;Dataset;Weighted;Type;LogregPrior;MinDCF;ActDCF
+$\pi_T = 0.047$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.5561030495281025;0.5795126473319515
+$\pi_T = 0.066$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.49243703105047976;0.5242467110987696
+$\pi_T = 0.092$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.39444098333869654;0.4319101064664703
+$\pi_T = 0.126$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.3242498684692142;0.32675613413337457
+$\pi_T = 0.170$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.26439909038118387;0.2767803256487871
+$\pi_T = 0.225$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.2208015966099976;0.23361310687855516
+$\pi_T = 0.293$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.17652725821250412;0.17898063799993255
+$\pi_T = 0.371$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.1396829780769664;0.1511258719840016
+$\pi_T = 0.456$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.11371157241666757;0.12108056498349569
+$\pi_T = 0.544$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.1078494736114471;0.11760556766405401
+$\pi_T = 0.629$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.12556645229635377;0.13494050435961455
+$\pi_T = 0.707$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.14087328175719566;0.1439189670363835
+$\pi_T = 0.775$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15075200465091698;0.17556860108433747
+$\pi_T = 0.830$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15076142131979695;0.19129137999287696
+$\pi_T = 0.874$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15076142131979695;0.16010060281619531
+$\pi_T = 0.908$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15076142131979695;0.15532994923857868
+$\pi_T = 0.934$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15076142131979695;0.16954314720812183
+$\pi_T = 0.953$;$\lambda = 0.1$;PCA $(m=5)$;RAW;Weighted;Quadratic;$\pi_t = 0.5$;0.15076142131979695;0.18223350253807108
