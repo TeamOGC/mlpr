@@ -14,9 +14,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-OUTPUT_PATH = ROOT_PATH + "../images/evaluation/"
-TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/evaluation/"
-TABLES_OUTPUT_PATH_CAL = ROOT_PATH + "../tables/evaluation/calibrated/"
+OUTPUT_PATH = ROOT_PATH + "../images/evaluation/tre/"
+TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/evaluation/tre/"
+TABLES_OUTPUT_PATH_CAL = ROOT_PATH + "../tables/evaluation/calibrated/tre/"
 makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH_CAL, exist_ok=True)
@@ -136,14 +136,14 @@ def rbf_svm_callback(prior):
 
 
 def main():
-    numberOfPoints = 18
-    effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
-    effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
-    # effPriors = [0.1, 0.5, 0.9]
-    # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
+    # numberOfPoints = 18
+    # effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
+    # effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
+    effPriors = [0.1, 0.5, 0.9]
+    effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
 
-    use_csv: bool = True
+    use_csv: bool = False
 
     chooser = [True, True, True, True, True]
     # chooser = [True, True, False, False, True]
