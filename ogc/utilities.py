@@ -441,7 +441,8 @@ def plot_roc(args, filename: str = None):
         fnr, fpr, model_name = arg
         tpr = [1-i for i in fnr]
         # fnr = [0] + fnr + [1]
-        # fpr = [0] + fpr + [1]
+        fpr = [0] + fpr + [1]
+        tpr = [0] + tpr + [1]
         plt.plot(fpr, tpr, label=model_name, color=colors[i])
         legend.append(model_name)
     rng_guess = np.linspace(0, 1, 100)
