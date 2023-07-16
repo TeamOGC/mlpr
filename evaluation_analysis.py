@@ -14,9 +14,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-OUTPUT_PATH = ROOT_PATH + "../images/evaluation/tre/"
-TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/evaluation/tre/"
-TABLES_OUTPUT_PATH_CAL = ROOT_PATH + "../tables/evaluation/calibrated/tre/"
+OUTPUT_PATH = ROOT_PATH + "../images/evaluation/roc/"
+TABLES_OUTPUT_PATH = ROOT_PATH + "../tables/evaluation/roc/"
+TABLES_OUTPUT_PATH_CAL = ROOT_PATH + "../tables/evaluation/calibrated/roc/"
 makedirs(OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH, exist_ok=True)
 makedirs(TABLES_OUTPUT_PATH_CAL, exist_ok=True)
@@ -35,16 +35,16 @@ def poly_svm_callback(prior):
     scores = model.predictAndGetScores(DTE)
 
     mindcf = metrics.minimum_detection_costs(scores, LTE, prior, 1, 1)
-    actdcf, TPR, fpr = metrics.compute_actual_DCF(
+    actdcf, FNR, fpr = metrics.compute_actual_DCF(
         scores, LTE, prior, 1, 1, retRates=True)
     # Calibrate
     calibratedScores = utilities.calibrateScores(scores, LTE, scores, 0.0001)
     calmindcf = metrics.minimum_detection_costs(
         calibratedScores, LTE, prior, 1, 1)
-    calactdcf, cal_TPR, cal_fpr = metrics.compute_actual_DCF(
+    calactdcf, cal_FNR, cal_fpr = metrics.compute_actual_DCF(
         calibratedScores, LTE, prior, 1, 1, retRates=True)
 
-    return (mindcf, actdcf, calmindcf, calactdcf, TPR, fpr, cal_TPR, cal_fpr)
+    return (mindcf, actdcf, calmindcf, calactdcf, FNR, fpr, cal_FNR, cal_fpr)
 
 
 def mvg_callback(prior):
@@ -55,16 +55,16 @@ def mvg_callback(prior):
     scores = model.predictAndGetScores(DTE)
 
     mindcf = metrics.minimum_detection_costs(scores, LTE, prior, 1, 1)
-    actdcf, TPR, fpr = metrics.compute_actual_DCF(
+    actdcf, FNR, fpr = metrics.compute_actual_DCF(
         scores, LTE, prior, 1, 1, retRates=True)
     # Calibrate
     calibratedScores = utilities.calibrateScores(scores, LTE, scores, 0.0001)
     calmindcf = metrics.minimum_detection_costs(
         calibratedScores, LTE, prior, 1, 1)
-    calactdcf, cal_TPR, cal_fpr = metrics.compute_actual_DCF(
+    calactdcf, cal_FNR, cal_fpr = metrics.compute_actual_DCF(
         calibratedScores, LTE, prior, 1, 1, retRates=True)
 
-    return (mindcf, actdcf, calmindcf, calactdcf, TPR, fpr, cal_TPR, cal_fpr)
+    return (mindcf, actdcf, calmindcf, calactdcf, FNR, fpr, cal_FNR, cal_fpr)
 
 
 def logreg_callback(prior):
@@ -78,16 +78,16 @@ def logreg_callback(prior):
     scores = model.predictAndGetScores(DTE)
 
     mindcf = metrics.minimum_detection_costs(scores, LTE, prior, 1, 1)
-    actdcf, TPR, fpr = metrics.compute_actual_DCF(
+    actdcf, FNR, fpr = metrics.compute_actual_DCF(
         scores, LTE, prior, 1, 1, retRates=True)
     # Calibrate
     calibratedScores = utilities.calibrateScores(scores, LTE, scores, 0.0001)
     calmindcf = metrics.minimum_detection_costs(
         calibratedScores, LTE, prior, 1, 1)
-    calactdcf, cal_TPR, cal_fpr = metrics.compute_actual_DCF(
+    calactdcf, cal_FNR, cal_fpr = metrics.compute_actual_DCF(
         calibratedScores, LTE, prior, 1, 1, retRates=True)
 
-    return (mindcf, actdcf, calmindcf, calactdcf, TPR, fpr, cal_TPR, cal_fpr)
+    return (mindcf, actdcf, calmindcf, calactdcf, FNR, fpr, cal_FNR, cal_fpr)
 
 
 def GMM_callback(prior):
@@ -101,16 +101,16 @@ def GMM_callback(prior):
     scores = model.predictAndGetScores(DTE)
 
     mindcf = metrics.minimum_detection_costs(scores, LTE, prior, 1, 1)
-    actdcf, TPR, fpr = metrics.compute_actual_DCF(
+    actdcf, FNR, fpr = metrics.compute_actual_DCF(
         scores, LTE, prior, 1, 1, retRates=True)
     # Calibrate
     calibratedScores = utilities.calibrateScores(scores, LTE, scores, 0.0001)
     calmindcf = metrics.minimum_detection_costs(
         calibratedScores, LTE, prior, 1, 1)
-    calactdcf, cal_TPR, cal_fpr = metrics.compute_actual_DCF(
+    calactdcf, cal_FNR, cal_fpr = metrics.compute_actual_DCF(
         calibratedScores, LTE, prior, 1, 1, retRates=True)
 
-    return (mindcf, actdcf, calmindcf, calactdcf, TPR, fpr, cal_TPR, cal_fpr)
+    return (mindcf, actdcf, calmindcf, calactdcf, FNR, fpr, cal_FNR, cal_fpr)
 
 
 def rbf_svm_callback(prior):
@@ -123,29 +123,29 @@ def rbf_svm_callback(prior):
     scores = model.predictAndGetScores(DTE)
 
     mindcf = metrics.minimum_detection_costs(scores, LTE, prior, 1, 1)
-    actdcf, TPR, fpr = metrics.compute_actual_DCF(
+    actdcf, FNR, fpr = metrics.compute_actual_DCF(
         scores, LTE, prior, 1, 1, retRates=True)
     # Calibrate
     calibratedScores = utilities.calibrateScores(scores, LTE, scores, 0.0001)
     calmindcf = metrics.minimum_detection_costs(
         calibratedScores, LTE, prior, 1, 1)
-    calactdcf, cal_TPR, cal_fpr = metrics.compute_actual_DCF(
+    calactdcf, cal_FNR, cal_fpr = metrics.compute_actual_DCF(
         calibratedScores, LTE, prior, 1, 1, retRates=True)
 
-    return (mindcf, actdcf, calmindcf, calactdcf, TPR, fpr, cal_TPR, cal_fpr)
+    return (mindcf, actdcf, calmindcf, calactdcf, FNR, fpr, cal_FNR, cal_fpr)
 
 
 def main():
-    # numberOfPoints = 18
-    # effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
-    # effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
-    effPriors = [0.1, 0.5, 0.9]
-    effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
+    numberOfPoints = 18
+    effPriorLogOdds = np.linspace(-3, 3, numberOfPoints)
+    effPriors = 1/(1+np.exp(-1*effPriorLogOdds))
+    # effPriors = [0.1, 0.5, 0.9]
+    # effPriorLogOdds = [np.log(p/(1-p)) for p in effPriors]
     priors = [(f"$\pi_T = {p:.3f}$", p) for p in effPriors]
 
-    use_csv: bool = False
+    use_csv: bool = True
 
-    chooser = [True, True, True, True, True]
+    chooser = [True, True, False, False, True]
     # chooser = [True, True, False, False, True]
 
     if chooser[0]:
@@ -158,7 +158,7 @@ def main():
         else:
             _, final_results_mvg = utilities.grid_search(mvg_callback, priors)
             np.savetxt(mvg_filename, final_results_mvg, delimiter=";", fmt="%s",
-                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
+                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "FNR", "FPR", "calFNR", "calFPR"]))
         utilities.bayesErrorPlot([float(i[2]) for i in final_results_mvg], [float(i[1])
                                  for i in final_results_mvg], effPriorLogOdds, mvg_model_name.replace("?", ""), filename=mvg_bep_filename.replace("?", ""))
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_mvg], [float(i[3])
@@ -174,7 +174,7 @@ def main():
             _, final_results_logreg = utilities.grid_search(
                 logreg_callback, priors)
             np.savetxt(lr_filename, final_results_logreg, delimiter=";", fmt="%s", header=";".join(
-                ["Prior", "MinDCF", "ActDCF", "CalMinDCF", "CalActDCF", "TPR", "FPR", "CalTPR", "CalFPR"]))
+                ["Prior", "MinDCF", "ActDCF", "CalMinDCF", "CalActDCF", "FNR", "FPR", "CalFNR", "CalFPR"]))
         utilities.bayesErrorPlot([float(i[2]) for i in final_results_logreg], [float(i[1])
                                  for i in final_results_logreg], effPriorLogOdds, lr_model_name.replace("?", ""), filename=lr_bep_filename.replace("?", ""))
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_logreg], [float(i[3])
@@ -191,7 +191,7 @@ def main():
             _, final_results_poly = utilities.grid_search(
                 poly_svm_callback, priors)
             np.savetxt(poly_filename, final_results_poly, delimiter=";",
-                       fmt="%s", header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
+                       fmt="%s", header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "FNR", "FPR", "calFNR", "calFPR"]))
         utilities.bayesErrorPlot([float(i[2]) for i in final_results_poly], [float(i[1])
                                  for i in final_results_poly], effPriorLogOdds, poly_model_name.replace("?", ""), filename=poly_bep_filename.replace("?", ""))
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_poly], [float(i[3])
@@ -206,7 +206,7 @@ def main():
         else:
             _, final_results_gmm = utilities.grid_search(GMM_callback, priors)
             np.savetxt(gmm_filename, final_results_gmm, delimiter=";", fmt="%s",
-                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
+                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "FNR", "FPR", "calFNR", "calFPR"]))
         utilities.bayesErrorPlot([float(i[2]) for i in final_results_gmm], [float(i[1])
                                  for i in final_results_gmm], effPriorLogOdds, gmm_model_name.replace("?", ""), filename=gmm_bep_filename.replace("?", ""))
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_gmm], [float(i[3])
@@ -222,7 +222,7 @@ def main():
             _, final_results_rbf = utilities.grid_search(
                 rbf_svm_callback, priors)
             np.savetxt(rbf_filename, final_results_rbf, delimiter=";", fmt="%s",
-                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "TPR", "FPR", "calTPR", "calFPR"]))
+                       header=";".join(["Prior", "minDCF", "actDCF", "calMinDCF", "calActDCF", "FNR", "FPR", "calFNR", "calFPR"]))
         utilities.bayesErrorPlot([float(i[2]) for i in final_results_rbf], [float(i[1])
                                  for i in final_results_rbf], effPriorLogOdds, rbf_model_name.replace("?", ""), filename=rbf_bep_filename.replace("?", ""))
         utilities.bayesErrorPlot([float(i[4]) for i in final_results_rbf], [float(i[3])

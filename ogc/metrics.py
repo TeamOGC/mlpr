@@ -55,8 +55,10 @@ def compute_actual_DCF(llr: npt.NDArray, LTE:npt.NDArray, pi1, cfn, cfp, retRate
     NDCF = (normalized_detection_cost_function(uDCF, pi1, cfn, cfp))
     if retRates:
         # calculate fnr and fnp with confMatrix
-        TPR = confMatrix[0][0]/(confMatrix[0][0]+confMatrix[0][1])
-        FPR = confMatrix[1][0]/(confMatrix[0][0]+confMatrix[1][0])
-        return NDCF, TPR, FPR
+        M = confMatrix
+        FNR = M[0][1]/(M[0][1]+M[1][1])
+        FPR = M[1][0]/(M[0][0]+M[1][0])
+
+        return NDCF, FNR, FPR
 
     return NDCF

@@ -434,14 +434,15 @@ def multiple_bep(effPriorLogOdds, args, filename: str = None):
 
 def plot_roc(args, filename: str = None):
     # Each arg must contain (minDCF, actDCF, model_name)
-    colors = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
+    colors = ['r', 'b', 'g', 'c', 'm', 'y']
     plt.figure()
     legend = []
     for i, arg in enumerate(args):
-        tpr, fnr, model_name = arg
-        tpr = [0] + tpr + [1]
-        fnr = [0] + fnr + [1]
-        plt.plot(fnr, tpr, label=model_name, color=colors[i])
+        fnr, fpr, model_name = arg
+        tpr = [1-i for i in fnr]
+        # fnr = [0] + fnr + [1]
+        # fpr = [0] + fpr + [1]
+        plt.plot(fpr, tpr, label=model_name, color=colors[i])
         legend.append(model_name)
     rng_guess = np.linspace(0, 1, 100)
     plt.plot(rng_guess, rng_guess, label="Random Guess",
